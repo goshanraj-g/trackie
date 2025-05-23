@@ -3,7 +3,7 @@ export type Job = {
   title: string;
   companyName: string;
   url: string;
-  stage?: string;
+  status?: string;
   notes?: string;
   type: "added" | "watchlist";
   date?: string;

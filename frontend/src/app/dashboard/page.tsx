@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Calendar, Building2, ExternalLink, FileText } from "lucide-react";
 import { Job } from "@/lib/types";
+import AddJobModal from "@/modals/AddJobModal";
 
 export default function () {
   // show the job modal
@@ -23,7 +24,44 @@ export default function () {
           >
             + Add Job
           </Button>
-          {/* <AddJobModal></AddJobModal> */}
+          <AddJobModal
+            open={showJobModal}
+            onOpenChange={setShowJobModal}
+            onAdd={async (job) => {
+              const companyTLD = job.companyName
+                ? job.companyName.toLowerCase().replace(/[^a-z0-9]/g, "")
+                : null;
+              // check if name exists, and if so, use regex to get only letters and digits for API search
+
+              const possibleDomains = companyTLD
+                ? [
+                    `${companyTLD}.com`,
+                    `${companyTLD}.ca`,
+                    `${companyTLD}.io`,
+                    `${companyTLD}.ai`,
+                    `${companyTLD}.org`,
+                  ]
+                : [];
+              // generate possible TLDs
+
+              const fullJob = {
+                id: crypto.randomUUID(),
+                title: job.title,
+                companyName: job.companyName,
+                url: job.url,
+                status: job.status ?? null,
+                notes: job.notes ?? null,
+                date: new Date().toLocaleDateString("en-US", {
+                  // get the date
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                }),
+                possibleDomains,
+                logoIndex: 0,
+              };
+            }}
+          />
           <Button
             onClick={() => setShowWatchlistModal(true)}
             size="lg"
