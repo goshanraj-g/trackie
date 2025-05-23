@@ -10,10 +10,10 @@ export default function Home() {
         </h1>
         <p className="text-muted-foreground text-lg">
           A modern, minimal tracker to organize your job hunt, and stay
-          focused... No spreadsheets, just clarity
+          focused...
         </p>
         <Link href="/login">
-          <Button variant="primary" className="cursor-pointer" size="lg">
+          <Button variant="primary" className="cursor-pointer m-5" size="lg">
             Get Started
           </Button>
         </Link>
