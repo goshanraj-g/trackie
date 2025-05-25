@@ -44,6 +44,7 @@ export default function AddJobModal({
       notes,
       type: "added",
     };
+
     onAdd(newJob); // send the job to the parent
     onOpenChange(false); // close the modal
     setCompanyName("");

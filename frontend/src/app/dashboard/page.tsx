@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { Calendar, Building2, ExternalLink, FileText } from "lucide-react";
 import { Job } from "@/lib/types";
 import AddJobModal from "@/modals/AddJobModal";
+import AddWatchListModal from "@/modals/AddWatchListModal";
 
 export default function () {
   // show the job modal
@@ -70,7 +71,11 @@ export default function () {
           >
             + Add to Watchlist
           </Button>
-          {/* <AddWatchlistModal></AddWatchlistModal> */}
+          <AddWatchListModal
+            open={showWatchlistModal}
+            onOpenChange={setShowWatchlistModal}
+            onAdd={(job) => setJobs((prev) => [...prev, job])}
+          />
         </div>
       </div>
       <section className="w-full bg-muted/10 p-6 rounded-xl border space-y-6">
