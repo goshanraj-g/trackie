@@ -22,7 +22,7 @@ public class JobController {
     }
 
     // POST // api/jobs
-    @PostMapping
+    @PostMapping // adds job
     public Job addJob(@RequestBody Job job) {
         return jobRepo.save(job); // adds a job using JSON body
     }

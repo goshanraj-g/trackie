@@ -1,15 +1,26 @@
 import { Job } from "@/lib/types";
 
-// export -> makes this function available in import in other files
-// async -> allows us to use await inside the function
-// headers -> tells server that the request body contains JSON
-// JSON.stringify(job) -> convertrs job into a JSON string to send in the request body
-// -> res.json() -> parses the JSON response from server
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api";
+
+// add a job to backend
 export async function addJob(job: Job) {
-  const res = await fetch("/api/jobs", {
+  const res = await fetch(`${API_URL}/jobs`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(job),
   });
+
+  if (!res.ok) {
+    throw new Error("Failed to add Job");
+  }
+
+  return res.json(); // convert json to jsobject
+}
+
+export async function fetchJobs(): Promise<Job[]> {
+  const res = await fetch(`${API_URL}/jobs`);
+  if (!res.ok) {
+    throw new Error("Failed to fetch jobs");
+  }
   return res.json();
 }
