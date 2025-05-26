@@ -202,9 +202,7 @@ export default function () {
                         <Calendar className="h-3.5 w-3.5" />
                         <span>Applied: {job.date || "Unknown"}</span>
                       </div>
-                      <div className="flex items-center justify-center px-3 py-1 rounded-full bg-primary/10 text-primary font-medium text-xs">
-                        Applied
-                      </div>
+                      <StatusBadge status={job.status} />
                     </div>
                   </div>
                 </div>
@@ -216,6 +214,37 @@ export default function () {
   );
 }
 
+function StatusBadge({ status }: { status: string }) {
+  const getStatusClass = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "applied":
+        return "bg-blue-100 text-blue-800";
+      case "waitlisted":
+        return "bg-orange-100 text-orange-800";
+      case "ghosted":
+        return "bg-gray-100 text-gray-800";
+      case "offer":
+        return "bg-green-100 text-green-800";
+      case "rejected":
+        return "bg-red-100 text-red-800";
+      case "technical interview":
+        return "bg-purple-100 text-purple-800";
+      case "phone screen":
+        return "bg-yellow-100 text-yellow-800";
+      default:
+        return "bg-muted-100 text-foreground";
+    }
+  };
+  return (
+    <div
+      className={`px-3 py-1 rounded-full font-medium text-xs ${getStatusClass(
+        status
+      )}`}
+    >
+      {status.charAt(0).toUpperCase() + status.slice(1)}
+    </div>
+  );
+}
 // new type
 type CompanyLogoProps = {
   // whatevers passed in for job, must conform to Job interface in /types.ts
