@@ -2,6 +2,8 @@ package com.trackie.trackie.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.ElementCollection;
+import java.util.List;
 
 @Entity
 public class Job {
@@ -15,6 +17,12 @@ public class Job {
     private String notes;
     private String status;
     private String type; // added or watchlist
+    private String date;
+    
+    @ElementCollection
+    // allow fetches to clearbit api 
+    private List<String> possibleDomains;
+    private Integer logoIndex;
 
     public Job() {
     }
@@ -74,5 +82,29 @@ public class Job {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public List<String> getPossibleDomains() {
+        return possibleDomains;
+    }
+
+    public void setPossibleDomains(List<String> possibleDomains) {
+        this.possibleDomains = possibleDomains;
+    }
+
+    public Integer getLogoIndex() {
+        return logoIndex;
+    }
+
+    public void setLogoIndex(Integer logoIndex) {
+        this.logoIndex = logoIndex;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }

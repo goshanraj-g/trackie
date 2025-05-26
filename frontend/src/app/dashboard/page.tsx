@@ -2,48 +2,55 @@
 
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { Calendar, Building2, ExternalLink, FileText } from "lucide-react";
+import { Calendar, ExternalLink, FileText } from "lucide-react";
 import { Job } from "@/lib/types";
 import AddJobModal from "@/modals/AddJobModal";
 import { addJob, fetchJobs } from "@/lib/api";
 import AddWatchListModal from "@/modals/AddWatchListModal";
 
 export default function () {
-  // show the job modal
   const [showJobModal, setShowJobModal] = useState(false);
   const [showWatchlistModal, setShowWatchlistModal] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
-  // every time state is changed, a rerender is triggered
 
+  // sets a call to fetch the jobs
   useEffect(() => {
     const loadJobs = async () => {
       try {
+        // fetch jobs
         const data = await fetchJobs();
+        // set the new jobs with the jobs that were fetched
         setJobs(data);
       } catch (err) {
         console.error("failed", err);
       }
     };
+    // loadJobs ONCE
     loadJobs();
   }, []);
 
+  // handle a new job added
   const handleAddJob = async (job: Partial<Job>) => {
+    // clean up entries
     const companyTLD = job.companyName
       ? job.companyName.toLowerCase().replace(/[^a-z0-9]/g, "")
       : null;
-    // check if name exists, and if so, use regex to get only letters and digits for API search
 
-    const possibleDomains = companyTLD
-      ? [
-          `${companyTLD}.com`,
-          `${companyTLD}.ca`,
-          `${companyTLD}.io`,
-          `${companyTLD}.ai`,
-          `${companyTLD}.org`,
-        ]
-      : [];
-    // generate possible TLDs
+    // create variations of the domain
+    const possibleDomains = [];
+    if (companyTLD) {
+      // add the standard tlds
+      possibleDomains.push(
+        `${companyTLD}.com`,
+        `${companyTLD}.co`,
+        `${companyTLD}.io`,
+        `${companyTLD}.ai`,
+        `${companyTLD}.org`,
+        `${companyTLD}.net`
+      );
+    }
 
+    // define fullJob for proper cards
     const fullJob: Job = {
       id: crypto.randomUUID(),
       title: job.title || "Untitled Position",
@@ -52,7 +59,6 @@ export default function () {
       status: job.status ?? "applied",
       notes: job.notes ?? "",
       date: new Date().toLocaleDateString("en-US", {
-        // get the date
         year: "numeric",
         month: "short",
         day: "numeric",
@@ -62,8 +68,12 @@ export default function () {
       type: "added",
     };
     try {
+      // calls addJob API with the new job object
+      // await -> code pauses until promise is resolved or rejected
       const savedJob = await addJob(fullJob);
+      // add this new job to the array
       setJobs((prev) => [...prev, savedJob]);
+      // close modal
       setShowJobModal(false);
     } catch (err) {
       alert("error to save job");
@@ -76,8 +86,6 @@ export default function () {
         <h1 className="text-4xl font-bold tracking-tight">Your Job Tracker</h1>
         <div className="flex gap-4 w-full md:w-auto">
           <Button
-            // onClick -> predefined synthetic event handler
-            // setShowJobModal -> state updater function
             onClick={() => setShowJobModal(true)}
             size="lg"
             className="w-full md:w-auto cursor-pointer"
@@ -86,9 +94,7 @@ export default function () {
           </Button>
           <AddJobModal
             open={showJobModal}
-            // if showJobModal is true, then open
             onOpenChange={setShowJobModal}
-            // allows the modal to tell the parent to open/close it
             onAdd={handleAddJob}
           />
           <Button
@@ -103,7 +109,6 @@ export default function () {
             open={showWatchlistModal}
             onOpenChange={setShowWatchlistModal}
             onAdd={(job) => setJobs((prev) => [...prev, job])}
-            // function which takes in job, changes state, calls another function, and updates the new job to the list
           />
         </div>
       </div>
@@ -123,44 +128,59 @@ export default function () {
             </p>
           </div>
         ) : (
-          // FIXED: Changed from flex container to grid for better card layout
-          // This prevents the width constraint issues you had before
           <div className="grid gap-4">
             {jobs
               .filter((job) => job.type === "added")
               .map((job) => (
                 <div
                   key={job.id}
-                  // FIXED: Complete restructure of job card layout
-                  // OLD: flex w-24 (96px width - way too small!)
-                  // NEW: proper card with flex layout, padding, and hover effects
                   className="flex items-start gap-4 p-4 bg-card border rounded-lg hover:shadow-md transition-shadow"
                 >
-                  {/* FIXED: Company logo container - proper size and styling */}
-                  {/* OLD: w-24 h-auto (too small and weird dimensions) */}
-                  {/* NEW: w-12 h-12 (48x48px - proper icon size) */}
                   <div className="flex items-center justify-center bg-gradient-to-br from-muted/30 to-muted/10 w-12 h-12 rounded-lg flex-shrink-0">
-                    <Building2 className="h-6 w-6 text-muted-foreground" />
-                    {/* CompanyLogo component would go here when ready */}
+                    <CompanyLogo
+                      job={job}
+                      onError={(job) => {
+                        // handle logo logic
+                        if (
+                          // if the domains exist, and the logoIndex exists and is valid,
+                          //
+                          job.possibleDomains &&
+                          job.logoIndex !== undefined &&
+                          job.logoIndex < job.possibleDomains.length - 1
+                        ) {
+                          setJobs(
+                            (
+                              prev // call state setter setJobs, passing in prev, and whatever returned is new state
+                            ) =>
+                              prev.map(
+                                (
+                                  j // create new array of same length
+                                ) =>
+                                  j.id === job.id // if the job id matches
+                                    ? {
+                                        ...j,
+                                        logoIndex: (j.logoIndex ?? 0) + 1,
+                                      } // keep all other fields except for logoIndex the same, and if logoindex is null, treat as zero, and then add 1
+                                    : j // return unchanged
+                              )
+                          );
+                        }
+                      }}
+                    />
                   </div>
 
-                  {/* FIXED: Job content with proper flex behavior */}
-                  {/* Added min-w-0 to prevent flex overflow issues */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between mb-2">
-                      {/* FIXED: Better text overflow handling */}
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-lg truncate pr-2">
                           {job.title}
                         </h3>
                         <div className="flex items-center text-sm text-muted-foreground gap-1.5">
-                          <Building2 className="h-4 w-4 flex-shrink-0" />
                           <span className="font-medium truncate">
                             {job.companyName || "Unknown Company"}
                           </span>
                         </div>
                       </div>
-                      {/* External link moved here for better positioning */}
                       <a
                         href={job.url}
                         target="_blank"
@@ -177,14 +197,11 @@ export default function () {
                       </div>
                     )}
 
-                    {/* edit modal - TODO: implement edit functionality */}
- 
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-1 text-muted-foreground">
                         <Calendar className="h-3.5 w-3.5" />
                         <span>Applied: {job.date || "Unknown"}</span>
                       </div>
-                      {/* FIXED: Better status badge styling */}
                       <div className="flex items-center justify-center px-3 py-1 rounded-full bg-primary/10 text-primary font-medium text-xs">
                         Applied
                       </div>
@@ -196,5 +213,103 @@ export default function () {
         )}
       </section>
     </main>
+  );
+}
+
+// new type
+type CompanyLogoProps = {
+  // whatevers passed in for job, must conform to Job interface in /types.ts
+  job: Job;
+  // optional prop, just to check if there's an error
+  onError?: (job: Job) => void;
+};
+
+function CompanyLogo({ job, onError }: CompanyLogoProps) {
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    // when company name changes, reset the error
+    setHasError(false);
+  }, [job.companyName]);
+
+  // if companyname exists, get the initials, if not just return ?
+  const renderInitials = () => {
+    const initials = job.companyName
+      ? job.companyName
+          .split(" ")
+          .map((word) => word[0])
+          .join("")
+          .substring(0, 2)
+          .toUpperCase()
+      : "?";
+
+    // generate color
+    const colorSeed = job.companyName
+      ? job.companyName
+          .split("")
+          .reduce((acc, char) => acc + char.charCodeAt(0), 0) % 6
+      : 0;
+
+    const bgColorClasses = [
+      "bg-blue-100 text-blue-800",
+      "bg-green-100 text-green-800",
+      "bg-purple-100 text-purple-800",
+      "bg-amber-100 text-amber-800",
+      "bg-rose-100 text-rose-800",
+      "bg-cyan-100 text-cyan-800",
+    ];
+
+    return (
+      <div
+        className={`w-12 h-12 rounded-full flex items-center justify-center ${bgColorClasses[colorSeed]}`}
+      >
+        <span className="text-lg font-semibold">{initials}</span>
+      </div>
+    );
+  };
+
+  if (!job.possibleDomains || job.possibleDomains.length === 0 || hasError) {
+    console.log(
+      "Falling back to initials for",
+      job.companyName,
+      "because:",
+      !job.possibleDomains
+        ? "no domains"
+        : job.possibleDomains.length === 0
+        ? "empty domains"
+        : "previous error"
+    );
+    return renderInitials();
+  }
+
+  const currentDomain =
+    job.logoIndex !== undefined && job.possibleDomains
+      ? job.possibleDomains[job.logoIndex]
+      : job.possibleDomains[0];
+
+  if (!currentDomain) {
+    console.log("No valid domain found for", job.companyName);
+    return renderInitials();
+  }
+
+  const logoUrl = `https://logo.clearbit.com/${currentDomain}?size=100&format=png`;
+
+  return (
+    <img
+      src={logoUrl}
+      alt={`${job.companyName} logo`}
+      className="w-12 h-12 object-contain rounded-lg bg-white shadow-sm"
+      onError={(e) => {
+        console.log(
+          "Logo failed to load for",
+          job.companyName,
+          "with domain",
+          currentDomain
+        );
+        setHasError(true);
+        if (onError) onError(job);
+      }}
+      loading="lazy"
+    />
   );
 }

@@ -8,15 +8,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Select,
-  SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectContent,
+  SelectItem,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { Job } from "@/lib/types";
 
 export default function AddJobModal({
@@ -24,9 +25,9 @@ export default function AddJobModal({
   onOpenChange,
   onAdd,
 }: {
-  open: boolean; // whether the modal is visible or not
-  onOpenChange: (open: boolean) => void; // function to close the modal
-  onAdd: (job: Job) => void; // callback to add the new job to the list
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onAdd: (job: Job) => void;
 }) {
   const [companyName, setCompanyName] = useState("");
   const [title, setTitle] = useState("");
@@ -35,18 +36,16 @@ export default function AddJobModal({
   const [status, setStatus] = useState("");
 
   const handleSubmit = () => {
-    const newJob: Job = {
-      id: crypto.randomUUID(), // generate a random unique ID
+    onAdd({
+      id: crypto.randomUUID(),
       companyName,
       title,
       url,
-      status,
       notes,
+      status,
       type: "added",
-    };
-
-    onAdd(newJob); // send the job to the parent
-    onOpenChange(false); // close the modal
+    });
+    onOpenChange(false);
     setCompanyName("");
     setTitle("");
     setUrl("");
@@ -56,87 +55,93 @@ export default function AddJobModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="max-w-[520px]">
         <DialogHeader>
           <DialogTitle>Add New Job</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="company" className="text-right">
+
+        <div className="space-y-4 py-4">
+          <div className="flex items-center gap-4 py-2">
+            <Label htmlFor="company" className="w-24 text-sm font-medium">
               Company
             </Label>
             <Input
               id="company"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
-              className="col-span-3"
+              placeholder="Enter company name"
+              className="flex-1"
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="title" className="text-right">
+          <div className="flex items-center gap-4 py-2">
+            <Label htmlFor="title" className="w-24 text-sm font-medium">
               Job Title
             </Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="col-span-3"
+              placeholder="Enter job title"
+              className="flex-1"
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="url" className="text-right">
+          <div className="flex items-center gap-4 py-2">
+            <Label htmlFor="url" className="w-24 text-sm font-medium">
               Job URL
             </Label>
             <Input
               id="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              className="col-span-3"
+              placeholder="Enter job URL"
+              className="flex-1"
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="notes" className="text-right">
-              Add Notes
+          <div className="flex items-center gap-4 py-2">
+            <Label htmlFor="notes" className="w-24 text-sm font-medium pt-2">
+              Notes
             </Label>
-            <textarea
+            <Textarea
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="col-span-3 resize-y rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 min-h-[100px]"
+              placeholder="Add any notes..."
+              className="flex-1 min-h-[90px]"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Status</Label>
+
+          <div className="flex items-center gap-4 py-2">
+            <Label htmlFor="status" className="w-24 text-sm font-medium">
+              Status
+            </Label>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="col-span-3">
-                <SelectValue placeholder="Current Status" />
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="Select status..." />
               </SelectTrigger>
               <SelectContent>
                 {[
                   "Applied",
                   "Phone Screen",
-                  "Behavioural Interview",
                   "Technical Interview",
                   "Offer",
                   "Rejected",
                   "Ghosted",
                   "Waitlisted",
-                ].map((states) => (
-                  <SelectItem key={states} value={states}>
-                    {states}
+                ].map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
         </div>
-        <div className="flex justify-end">
-          <Button className="cursor-pointer" onClick={handleSubmit}>
-            Add
-          </Button>
+
+        <div className="flex justify-end pt-4">
+          <Button onClick={handleSubmit}>Add Job</Button>
         </div>
       </DialogContent>
     </Dialog>
