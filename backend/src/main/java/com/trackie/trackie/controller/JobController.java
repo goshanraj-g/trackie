@@ -27,4 +27,16 @@ public class JobController {
         return jobRepo.save(job); // adds a job using JSON body
     }
 
+    @PutMapping("/{id}")
+    public Job updateJob(@PathVariable String id, @RequestBody Job updatedJob) {
+        updatedJob.setId(id); // make sure id is preserved
+        return jobRepo.save(updatedJob);
+    }
+
+    // DELETE /api/jobs/{id}
+    @DeleteMapping("/{id}")
+    public void deleteJob(@PathVariable String id) {
+        jobRepo.deleteById(id);
+    }
+
 }

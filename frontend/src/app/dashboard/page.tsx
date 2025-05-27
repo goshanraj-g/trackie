@@ -2,16 +2,17 @@
 
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { Calendar, ExternalLink, FileText } from "lucide-react";
+import { Calendar, FileText, Pencil, Trash } from "lucide-react";
 import { Job } from "@/lib/types";
-import AddJobModal from "@/modals/AddJobModal";
-import { addJob, fetchJobs } from "@/lib/api";
+import AddJobModal from "@/modals/JobFormModal";
+import { addJob, fetchJobs, deleteJob } from "@/lib/api";
 import AddWatchListModal from "@/modals/AddWatchListModal";
 
 export default function () {
   const [showJobModal, setShowJobModal] = useState(false);
   const [showWatchlistModal, setShowWatchlistModal] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobToEdit, setJobToEdit] = useState<Job | null>(null);
 
   // sets a call to fetch the jobs
   useEffect(() => {
@@ -94,8 +95,20 @@ export default function () {
           </Button>
           <AddJobModal
             open={showJobModal}
-            onOpenChange={setShowJobModal}
+            onOpenChange={(open) => {
+              setShowJobModal(open);
+              if (!open) setJobToEdit(null); //reset modal after closing it
+            }}
             onAdd={handleAddJob}
+            onUpdate={(updatedJob) => {
+              setJobs((prev) =>
+                prev.map((j) => (j.id === updatedJob.id ? updatedJob : j))
+              );
+            }}
+            onDelete={(id) => {
+              setJobs((prev) => prev.filter((j) => j.id !== id));
+            }}
+            jobToEdit={jobToEdit ?? undefined}
           />
           <Button
             onClick={() => setShowWatchlistModal(true)}
@@ -181,14 +194,34 @@ export default function () {
                           </span>
                         </div>
                       </div>
-                      <a
-                        href={job.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:text-primary/80 p-1 rounded-md hover:bg-primary/10 transition-colors flex-shrink-0"
-                      >
-                        <ExternalLink className="h-5 w-5" />
-                      </a>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setJobToEdit(job);
+                            setShowJobModal(true);
+                          }}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={async () => {
+                            try {
+                              await deleteJob(job.id);
+                              setJobs((prev) =>
+                                prev.filter((j) => j.id !== job.id)
+                              );
+                            } catch (err) {
+                              console.error("failed to delte error", err);
+                            }
+                          }}
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
 
                     {job.notes && (
@@ -202,7 +235,7 @@ export default function () {
                         <Calendar className="h-3.5 w-3.5" />
                         <span>Applied: {job.date || "Unknown"}</span>
                       </div>
-                      <StatusBadge status={job.status} />
+                      <StatusBadge status={job.status ?? "applied"} />
                     </div>
                   </div>
                 </div>

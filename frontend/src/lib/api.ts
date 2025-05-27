@@ -24,3 +24,27 @@ export async function fetchJobs(): Promise<Job[]> {
   }
   return res.json();
 }
+
+export async function deleteJob(id: string): Promise<void> {
+  const res = await fetch(`${API_URL}/jobs/${id}`, { method: "DELETE" });
+
+  if (!res.ok) {
+    throw new Error("Failed to delete job");
+  }
+}
+
+export async function updateJob(job: Job): Promise<Job> {
+  const res = await fetch(`http://localhost:8080/api/jobs/${job.id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(job),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to update job");
+  }
+
+  return res.json();
+}

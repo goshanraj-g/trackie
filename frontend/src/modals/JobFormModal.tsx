@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -19,39 +19,93 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Job } from "@/lib/types";
+import { addJob, deleteJob, updateJob } from "@/lib/api";
 
-export default function AddJobModal({
+export default function JobFormModal({
   open,
   onOpenChange,
   onAdd,
+  onUpdate,
+  onDelete,
+  jobToEdit,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAdd: (job: Job) => void;
+  onAdd?: (job: Job) => void;
+  onUpdate?: (job: Job) => void;
+  onDelete?: (id: string) => void;
+  jobToEdit?: Job;
 }) {
-  const [companyName, setCompanyName] = useState("");
-  const [title, setTitle] = useState("");
-  const [url, setUrl] = useState("");
-  const [notes, setNotes] = useState("");
-  const [status, setStatus] = useState("");
+  const [companyName, setCompanyName] = useState(jobToEdit?.companyName || "");
+  const [title, setTitle] = useState(jobToEdit?.title || "");
+  const [url, setUrl] = useState(jobToEdit?.url || "");
+  const [notes, setNotes] = useState(jobToEdit?.notes || "");
+  const [status, setStatus] = useState(jobToEdit?.status || "");
 
-  const handleSubmit = () => {
-    onAdd({
-      id: crypto.randomUUID(),
+  const handleSubmit = async () => {
+    const companyTLD = companyName
+      ? companyName.toLowerCase().replace(/[^a-z0-9]/g, "")
+      : null;
+
+    const possibleDomains: string[] = [];
+    if (companyTLD) {
+      possibleDomains.push(
+        `${companyTLD}.com`,
+        `${companyTLD}.co`,
+        `${companyTLD}.io`,
+        `${companyTLD}.ai`,
+        `${companyTLD}.org`,
+        `${companyTLD}.net`
+      );
+    }
+
+    const job: Job = {
+      id: jobToEdit?.id ?? crypto.randomUUID(),
       companyName,
       title,
       url,
       notes,
       status,
       type: "added",
-    });
-    onOpenChange(false);
-    setCompanyName("");
-    setTitle("");
-    setUrl("");
-    setNotes("");
-    setStatus("");
+      possibleDomains,
+      logoIndex: 0,
+      date:
+        jobToEdit?.date ??
+        new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }),
+    };
+
+    try {
+      if (jobToEdit) {
+        const updated = await updateJob(job);
+        onUpdate?.(updated);
+      } else {
+        const saved = await addJob(job);
+        onAdd?.(saved);
+      }
+
+      onOpenChange(false); // close modal
+      setCompanyName("");
+      setTitle("");
+      setUrl("");
+      setNotes("");
+      setStatus("");
+    } catch (err) {
+      alert("failed to save job");
+    }
   };
+
+  useEffect(() => {
+    // side effect which should be run after component renders (jobToEdit or open changes)
+    setCompanyName(jobToEdit?.companyName || "");
+    setTitle(jobToEdit?.title || "");
+    setUrl(jobToEdit?.url || "");
+    setNotes(jobToEdit?.notes || "");
+    setStatus(jobToEdit?.status || "");
+  }, [jobToEdit, open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
