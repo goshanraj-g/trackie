@@ -5,29 +5,42 @@ import { useState, useEffect } from "react";
 import { Calendar, FileText, Pencil, Trash } from "lucide-react";
 import { Job } from "@/lib/types";
 import AddJobModal from "@/modals/JobFormModal";
-import { addJob, fetchJobs, deleteJob } from "@/lib/api";
-import AddWatchListModal from "@/modals/AddWatchListModal";
+import {
+  addJob,
+  fetchJobs,
+  deleteJob,
+  fetchWatchlist,
+  addWatchItem,
+  updateWatchItem,
+  deleteWatchItem,
+} from "@/lib/api";
+import WatchListFormModal from "@/modals/WatchlistModal";
 
 export default function () {
   const [showJobModal, setShowJobModal] = useState(false);
+  const [watchlist, setWatchlist] = useState<Job[]>([]);
   const [showWatchlistModal, setShowWatchlistModal] = useState(false);
+  const [watchItemToEdit, setWatchItemToEdit] = useState<Job | undefined>();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [jobToEdit, setJobToEdit] = useState<Job | null>(null);
 
   // sets a call to fetch the jobs
   useEffect(() => {
-    const loadJobs = async () => {
+    const loadAll = async () => {
       try {
         // fetch jobs
         const data = await fetchJobs();
         // set the new jobs with the jobs that were fetched
-        setJobs(data);
+
+        setJobs(data.filter((j) => j.type === "added"));
+        const watched = await fetchWatchlist();
+        setWatchlist(watched);
       } catch (err) {
         console.error("failed", err);
       }
     };
     // loadJobs ONCE
-    loadJobs();
+    loadAll();
   }, []);
 
   // handle a new job added
@@ -118,10 +131,27 @@ export default function () {
           >
             + Add to Watchlist
           </Button>
-          <AddWatchListModal
+          <WatchListFormModal
             open={showWatchlistModal}
-            onOpenChange={setShowWatchlistModal}
-            onAdd={(job) => setJobs((prev) => [...prev, job])}
+            onOpenChange={(open) => {
+              setShowWatchlistModal(open);
+              if (!open) setWatchItemToEdit(undefined);
+            }}
+            onAdd={async (item) => {
+              const saved = await addWatchItem(item);
+              setWatchlist((prev) => [...prev, saved]);
+            }}
+            onUpdate={async (item) => {
+              const updated = await updateWatchItem(item);
+              setWatchlist((prev) =>
+                prev.map((w) => (w.id === updated.id ? updated : w))
+              );
+            }}
+            onDelete={async (id) => {
+              await deleteWatchItem(id);
+              setWatchlist((prev) => prev.filter((w) => w.id !== id));
+            }}
+            itemToEdit={watchItemToEdit}
           />
         </div>
       </div>

@@ -21,6 +21,12 @@ public class JobController {
         return jobRepo.findAll();
     }
 
+    // GET watchlist items only
+    @GetMapping("/watchlist")
+    public List<Job> getWatchlist() {
+        return jobRepo.findByType("watchlist");
+    }
+
     // POST // api/jobs
     @PostMapping // adds job
     public Job addJob(@RequestBody Job job) {

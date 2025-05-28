@@ -48,3 +48,34 @@ export async function updateJob(job: Job): Promise<Job> {
 
   return res.json();
 }
+
+export async function fetchWatchlist(): Promise<Job[]> {
+  const res = await fetch("/api/jobs/watchlist");
+  if (!res.ok) throw new Error("Failed to fetch watchlist");
+  return res.json();
+}
+
+export async function addWatchItem(item: Job): Promise<Job> {
+  const res = await fetch("/api/jobs", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(item),
+  });
+  if (!res.ok) throw new Error("Failed to add watchlist item");
+  return res.json();
+}
+
+export async function updateWatchItem(item: Job): Promise<Job> {
+  const res = await fetch(`/api/jobs/${item.id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(item),
+  });
+  if (!res.ok) throw new Error("Failed to update watchlist item");
+  return res.json();
+}
+
+export async function deleteWatchItem(id: string): Promise<void> {
+  const res = await fetch(`/api/jobs/${id}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("Failed to delete watchlist item");
+}

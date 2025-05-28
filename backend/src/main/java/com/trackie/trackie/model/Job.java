@@ -23,6 +23,7 @@ public class Job {
     // allow fetches to clearbit api 
     private List<String> possibleDomains;
     private Integer logoIndex;
+    
 
     public Job() {
     }
