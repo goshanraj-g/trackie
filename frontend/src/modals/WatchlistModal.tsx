@@ -14,7 +14,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Job } from "@/lib/types";
 
-
 export default function WatchListFormModal({
   open,
   onOpenChange,
@@ -44,6 +43,17 @@ export default function WatchListFormModal({
   }, [itemToEdit, open]);
 
   const handleSubmit = () => {
+    const companyTLD = companyName.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const possibleDomains = companyTLD
+      ? [
+          `${companyTLD}.com`,
+          `${companyTLD}.co`,
+          `${companyTLD}.io`,
+          `${companyTLD}.ai`,
+          `${companyTLD}.org`,
+          `${companyTLD}.net`,
+        ]
+      : [];
     const payload: Job = {
       id: itemToEdit?.id ?? crypto.randomUUID(),
       companyName,
@@ -51,6 +61,15 @@ export default function WatchListFormModal({
       url,
       notes,
       type: "watchlist",
+      possibleDomains,
+      logoIndex: 0,
+      date:
+        itemToEdit?.date ??
+        new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }),
     };
 
     if (itemToEdit) {

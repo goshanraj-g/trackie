@@ -273,6 +273,95 @@ export default function () {
           </div>
         )}
       </section>
+
+      <section className="w-full bg-muted/10 p-6 rounded-xl border space-y-6">
+        <h2 className="text-xl font-semibold tracking-tight">Your Watchlist</h2>
+        {watchlist.length === 0 ? (
+          <div className="flex flex-col items-center py-12 text-muted-foreground">
+            <FileText className="h-10 w-10 mb-4" />
+            <p className="text-lg">No items in your watchlist</p>
+            <p className="text-sm mt-1">
+              Click "Add to Watchlist" to bookmark roles you're eyeing
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {watchlist.map((item) => (
+              <div
+                key={item.id}
+                className="flex items-start gap-4 p-4 bg-card border rounded-lg hover:shadow-md transition-shadow"
+              >
+                <CompanyLogo
+                  job={item}
+                  onError={() => {
+                    // exactly the same logic, but against watchlist instead of jobs:
+                    if (
+                      item.possibleDomains &&
+                      (item.logoIndex ?? 0) < item.possibleDomains.length - 1
+                    ) {
+                      setWatchlist((prev) =>
+                        prev.map((w) =>
+                          w.id === item.id
+                            ? { ...w, logoIndex: (w.logoIndex ?? 0) + 1 }
+                            : w
+                        )
+                      );
+                    }
+                  }}
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <h3 className="font-semibold text-lg truncate">
+                        {item.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground truncate">
+                        {item.companyName}
+                      </p>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setWatchItemToEdit(item);
+                          setShowWatchlistModal(true);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={async () => {
+                          await deleteWatchItem(item.id);
+                          setWatchlist((w) =>
+                            w.filter((wi) => wi.id !== item.id)
+                          );
+                        }}
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  {item.notes && (
+                    <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                      {item.notes}
+                    </p>
+                  )}
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1 text-muted-foreground">
+                      <Calendar className="h-3.5 w-3.5" />
+                      <span>Added: {item.date || "Unknown"}</span>
+                    </div>
+                    <StatusBadge status={item.status ?? "applied"} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </main>
   );
 }

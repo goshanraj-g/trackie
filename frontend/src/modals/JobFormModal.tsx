@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Job } from "@/lib/types";
-import { updateJob } from "@/lib/api";
+import { updateJob, deleteJob } from "@/lib/api";
 
 export default function JobFormModal({
   open,
@@ -43,6 +43,17 @@ export default function JobFormModal({
   const [url, setUrl] = useState(jobToEdit?.url || "");
   const [notes, setNotes] = useState(jobToEdit?.notes || "");
   const [status, setStatus] = useState(jobToEdit?.status || "");
+
+  const handleDelete = async () => {
+    if (!jobToEdit) return;
+    try {
+      await deleteJob(jobToEdit.id);
+      onDelete?.(jobToEdit.id);
+      onOpenChange(false);
+    } catch (err) {
+      console.error("error: ", err);
+    }
+  };
 
   const handleSubmit = async () => {
     const companyTLD = companyName
@@ -177,7 +188,13 @@ export default function JobFormModal({
           </Select>
         </FormField>
 
-        <DialogFooter>
+        <DialogFooter className="space-x-2">
+          {jobToEdit && (
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          )}
+
           <Button onClick={handleSubmit}>
             {jobToEdit ? "Save Changes" : "Add Job"}
           </Button>
