@@ -34,7 +34,7 @@ export async function deleteJob(id: string): Promise<void> {
 }
 
 export async function updateJob(job: Job): Promise<Job> {
-  const res = await fetch(`http://localhost:8080/api/jobs/${job.id}`, {
+  const res = await fetch(`${API_URL}/jobs/${job.id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -50,13 +50,12 @@ export async function updateJob(job: Job): Promise<Job> {
 }
 
 export async function fetchWatchlist(): Promise<Job[]> {
-  const res = await fetch("/api/jobs/watchlist");
+  const res = await fetch(`${API_URL}/jobs/watchlist`);
   if (!res.ok) throw new Error("Failed to fetch watchlist");
   return res.json();
 }
-
 export async function addWatchItem(item: Job): Promise<Job> {
-  const res = await fetch("/api/jobs", {
+  const res = await fetch(`${API_URL}/jobs`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(item),
@@ -66,7 +65,7 @@ export async function addWatchItem(item: Job): Promise<Job> {
 }
 
 export async function updateWatchItem(item: Job): Promise<Job> {
-  const res = await fetch(`/api/jobs/${item.id}`, {
+  const res = await fetch(`${API_URL}/jobs/${item.id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(item),
@@ -76,6 +75,7 @@ export async function updateWatchItem(item: Job): Promise<Job> {
 }
 
 export async function deleteWatchItem(id: string): Promise<void> {
-  const res = await fetch(`/api/jobs/${id}`, { method: "DELETE" });
+  const res = await fetch(`${API_URL}/jobs/${id}`, { 
+    method: "DELETE" });
   if (!res.ok) throw new Error("Failed to delete watchlist item");
 }
