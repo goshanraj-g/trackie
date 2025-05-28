@@ -6,10 +6,12 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { FormField } from "@/components/ui/form-field";
 import {
   Select,
   SelectTrigger,
@@ -19,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Job } from "@/lib/types";
-import { addJob, deleteJob, updateJob } from "@/lib/api";
+import { updateJob } from "@/lib/api";
 
 export default function JobFormModal({
   open,
@@ -83,8 +85,7 @@ export default function JobFormModal({
         const updated = await updateJob(job);
         onUpdate?.(updated);
       } else {
-        const saved = await addJob(job);
-        onAdd?.(saved);
+        onAdd?.(job);
       }
 
       onOpenChange(false); // close modal
@@ -111,92 +112,76 @@ export default function JobFormModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[520px]">
         <DialogHeader>
-          <DialogTitle>Add New Job</DialogTitle>
+          <DialogTitle>{jobToEdit ? "Edit Job" : "Add New Job"}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          <div className="flex items-center gap-4 py-2">
-            <Label htmlFor="company" className="w-24 text-sm font-medium">
-              Company
-            </Label>
-            <Input
-              id="company"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              placeholder="Enter company name"
-              className="flex-1"
-            />
-          </div>
+        <FormField htmlFor="company" label="Company">
+          <Input
+            id="company"
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
+            placeholder="Enter company name"
+          />
+        </FormField>
 
-          <div className="flex items-center gap-4 py-2">
-            <Label htmlFor="title" className="w-24 text-sm font-medium">
-              Job Title
-            </Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter job title"
-              className="flex-1"
-            />
-          </div>
+        <FormField htmlFor="title" label="Job Title">
+          <Input
+            id="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Enter job title"
+            className="flex-1"
+          />
+        </FormField>
 
-          <div className="flex items-center gap-4 py-2">
-            <Label htmlFor="url" className="w-24 text-sm font-medium">
-              Job URL
-            </Label>
-            <Input
-              id="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="Enter job URL"
-              className="flex-1"
-            />
-          </div>
+        <FormField htmlFor="url" label="Job URL">
+          <Input
+            id="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="Enter job URL"
+            className="flex-1"
+          />
+        </FormField>
 
-          <div className="flex items-center gap-4 py-2">
-            <Label htmlFor="notes" className="w-24 text-sm font-medium pt-2">
-              Notes
-            </Label>
-            <Textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add any notes..."
-              className="flex-1 min-h-[90px]"
-            />
-          </div>
+        <FormField htmlFor="notes" label="Notes">
+          <Textarea
+            id="notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Add any notes..."
+            className="flex-1 min-h-[90px]"
+          />
+        </FormField>
 
-          <div className="flex items-center gap-4 py-2">
-            <Label htmlFor="status" className="w-24 text-sm font-medium">
-              Status
-            </Label>
-            <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="flex-1">
-                <SelectValue placeholder="Select status..." />
-              </SelectTrigger>
-              <SelectContent>
-                {[
-                  "Applied",
-                  "Phone Screen",
-                  "Technical Interview",
-                  "Offer",
-                  "Rejected",
-                  "Ghosted",
-                  "Waitlisted",
-                ].map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {s}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        <FormField htmlFor="status" label="Status">
+          <Select value={status} onValueChange={setStatus}>
+            <SelectTrigger className="flex-1">
+              <SelectValue placeholder="Select status..." />
+            </SelectTrigger>
+            <SelectContent>
+              {[
+                "Applied",
+                "Phone Screen",
+                "Technical Interview",
+                "Offer",
+                "Rejected",
+                "Ghosted",
+                "Waitlisted",
+              ].map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FormField>
 
-        <div className="flex justify-end pt-4">
-          <Button onClick={handleSubmit}>Add Job</Button>
-        </div>
+        <DialogFooter>
+          <Button onClick={handleSubmit}>
+            {jobToEdit ? "Save Changes" : "Add Job"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
