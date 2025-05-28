@@ -1,35 +1,87 @@
-to implement:
-User Authentication (Google Sign-In w/ FireBase)
+# 📌 Trackie
 
-Protect routes like /dashboard
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![React Version](https://img.shields.io/badge/React-%5E18.0-61DAFB.svg)](https://reactjs.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-%5E3.0-6DB33F.svg)](https://spring.io/projects/spring-boot)
+[![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-336791.svg)](https://www.postgresql.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Styling-TailwindCSS-38B2AC.svg)](https://tailwindcss.com/)
 
-Sorting + Filtering
+<p align="center">
+  <img src="public/logo.png" alt="Trackie Logo" width="120"/>
+</p>
 
-Add dropdowns/toggles (by date, company, status)
+---
 
-Optional text search bar for title/company
+## About the Project
 
-AWS Integration (Textract)
+**Trackie** is a full-stack job tracking tool built to help developers stay on top of their job applications and leads. From applied roles to interviews to bookmarked postings, Trackie keeps everything in one place with a clean UI and modern developer stack.
 
-Upload image of Job Posting
+---
 
-Extract text to auto-fill job fields
+## Key Features
 
-Use S3 + Textract for storage and parsing
+### Core Features (MVP)
 
-Interview Reminder System
+- Add, edit, and delete job applications
+- Manage a personalized watchlist of potential roles
+- Notes and metadata for each entry
+- Logo fetching based on company domains (fallback to initials)
+- Responsive, modern UI using Tailwind and ShadCN
+- Fully integrated with a Spring Boot + PostgreSQL backend
 
-Add a date + reminderTime field
+---
 
-Use local notifications or email (SES) to remind (TWILLIO ALSO?)
+## 🛠️ Stack Overview
 
-Deadline Tracker
+### Frontend
 
-Add a deadline field
+- **React.js (v18)**
+- **TailwindCSS**
+- **ShadCN UI**
 
+### Backend
 
-User-specific Data
+- **Java** with **Spring Boot**
+- **PostgreSQL** via Spring Data JPA
 
-Backend: filter data using userId
+---
 
-Frontend: store user info from auth and include it in API requests
+## 📸 Screenshots
+
+<p align="center">
+  <img src="public/dashboard.png" alt="Dashboard Preview" width="600"/>
+</p>
+
+---
+
+## 🚧 To-Do / Planned Features
+
+- **User Authentication** (Google Sign-In via Firebase)
+- **Protected Routes** (`/dashboard`, etc.)
+- **Sorting & Filtering**
+  - Sort by date, company, or status
+  - Add dropdowns or search bar
+- **AWS Integration (Textract)**
+  - Upload job screenshots
+  - Use Textract to auto-fill fields
+  - Store images via S3
+- **Interview Reminder System**
+  - Add `date` + `reminderTime` fields
+  - Local browser notification or email via SES (or Twilio)
+- **Deadline Tracker**
+  - Add deadline fields to jobs
+- **User-Specific Data**
+  - Backend: Filter queries by `userId`
+  - Frontend: Store user info and include in API requests
+
+---
+
+## 🚀 Deployment
+
+Deployment will be configured in a future update with proper CI/CD and environment setup.
+
+---
+
+## 📄 License
+
+MIT License © 2025
