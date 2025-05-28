@@ -14,7 +14,7 @@
 
 ## About the Project
 
-**Trackie** is a full-stack job tracking tool built to help developers stay on top of their job applications and leads. From applied roles to interviews to bookmarked postings, Trackie keeps everything in one place with a clean UI and modern developer stack.
+**Trackie** is a full-stack job tracking tool built to help job-seekers stay on top of their job applications and leads. From applied roles to interviews to bookmarked postings, Trackie keeps everything in one place with a clean UI and modern developer stack.
 
 ---
 
@@ -78,7 +78,7 @@
 
 ## 🚀 Deployment
 
-Deployment will be configured in a future update with proper CI/CD and environment setup.
+Deployment will be configured in a future update
 
 ---
 
