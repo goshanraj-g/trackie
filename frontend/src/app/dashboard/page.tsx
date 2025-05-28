@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { Calendar, FileText, Pencil, Trash } from "lucide-react";
+import { Calendar, FileText, Pencil, Trash, ExternalLink } from "lucide-react";
 import { Job } from "@/lib/types";
 import AddJobModal from "@/modals/JobFormModal";
 import {
@@ -215,15 +215,28 @@ export default function () {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-lg truncate pr-2">
-                          {job.title}
-                        </h3>
+                        <div className="flex items-center space-x-2">
+                          <h3 className="font-semibold text-lg truncate">
+                            {job.title}
+                          </h3>
+                          {job.url && (
+                            <button
+                              onClick={() => window.open(job.url, "_blank")}
+                              className="inline-flex items-center justify-center p-1 text-muted-foreground hover:text-primary"
+                              aria-label="View listing"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
+
                         <div className="flex items-center text-sm text-muted-foreground gap-1.5">
                           <span className="font-medium truncate">
                             {job.companyName || "Unknown Company"}
                           </span>
                         </div>
                       </div>
+
                       <div className="flex gap-1">
                         <Button
                           variant="outline"
@@ -312,9 +325,20 @@ export default function () {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <h3 className="font-semibold text-lg truncate">
-                        {item.title}
-                      </h3>
+                      <div className="flex items-center space-x-2">
+                        <h3 className="font-semibold text-lg truncate">
+                          {item.title}
+                        </h3>
+                        {item.url && (
+                          <button
+                            onClick={() => window.open(item.url, "_blank")}
+                            className="inline-flex items-center justify-center p-1 text-muted-foreground hover:text-primary"
+                            aria-label="View listing"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
                       <p className="text-sm text-muted-foreground truncate">
                         {item.companyName}
                       </p>
@@ -349,6 +373,7 @@ export default function () {
                       {item.notes}
                     </p>
                   )}
+
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1 text-muted-foreground">
                       <Calendar className="h-3.5 w-3.5" />
@@ -479,7 +504,7 @@ function CompanyLogo({ job, onError }: CompanyLogoProps) {
     <img
       src={logoUrl}
       alt={`${job.companyName} logo`}
-      className="w-12 h-12 object-contain rounded-lg bg-white shadow-sm"
+      className="w-12 h-12 object-contain rounded-lg bg-white border-2 border-white shadow-sm"
       onError={(e) => {
         console.log(
           "Logo failed to load for",
