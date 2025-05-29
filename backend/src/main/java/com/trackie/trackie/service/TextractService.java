@@ -37,22 +37,31 @@ public class TextractService {
     }
 
     public String extractText(String fileName) {
+        // initialize textract client
         AmazonTextract textract = getTextractClient();
 
-        // specifiy location of file in s3
+        // creates a document object that tells textract where to find the file
         Document document = new Document().withS3Object(new S3Object().withName(fileName).withBucket(bucket));
 
-        // request to analyse text
-        AnalyzeDocumentRequest request = new AnalyzeDocumentRequest().withDocument(document).withFeatureTypes("FORMS");
+        // request to send to aws textract that attaches file info, and asks textract to
+        // look for form fields, and tables as well as raw text
+        AnalyzeDocumentRequest request = new AnalyzeDocumentRequest().withDocument(document).withFeatureTypes("FORMS",
+                "TABLES");
 
-        // send request to AWS Textract
+        // send request to AWS Textract, and recieve result
+        // textrect will process the file and respond with a list of blocks (individual
+        // pieces of information like lines, words, tables)
         AnalyzeDocumentResult result = textract.analyzeDocument(request);
 
         // collect and return extracted lines of text
+        // accumulate and efficiently build the extracted text line-by-line
         StringBuilder sb = new StringBuilder();
+        // rectrieve the list of blocks from textract repsonse
         List<Block> blocks = result.getBlocks();
 
+        /// loop to process each block returned by textract
         for (Block block : blocks) {
+            // ensure that the block only includes type LINE
             if ("LINE".equals(block.getBlockType())) {
                 sb.append(block.getText()).append("\n");
             }

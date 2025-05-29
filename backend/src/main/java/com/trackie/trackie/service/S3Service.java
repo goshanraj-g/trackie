@@ -40,33 +40,33 @@ public class S3Service {
                 .withCredentials(new AWSStaticCredentialsProvider(creds)).build();
     }
 
-    // create S3 client
-    // convert multipartfile to a local file
-    // gets orignal file name
-    // uploads to s3 -> s3.putObject(new PutObjectRequest(bucket, fileName, temp));
-    // deletes temp local file
-    // returns file name (caller knows what got uploaded)
-
     public String uploadFile(MultipartFile file) throws IOException {
+        // initialize client
         AmazonS3 s3 = getS3Client();
+        // converts incoming spring Multipart file to regular java file (AWS SDK
+        // putObject() requires File object)
         File temp = convertMultiPartToFile(file);
+        // extracts original file name from uploaded file
         String fileName = file.getOriginalFilename();
-
+        // uploads temp file to s3 bucket, bucket -> name of destination S3 bucket,
+        // fileName -> name of file, temp -> actual file to upload
         s3.putObject(new PutObjectRequest(bucket, fileName, temp));
+        // delete from servers local storage
         temp.delete();
 
         return fileName;
     }
 
-    // converts a multipartfile into a regular file object
-    // converting to mpf is how spring handles uploaded files
-    // this is requred because aws expects a file, and not a multipart file
     private File convertMultiPartToFile(MultipartFile file) throws IOException {
-        File convFile = new File(file.getOriginalFilename());
-        FileOutputStream fos = new FileOutputStream(convFile);
-        fos.write(file.getBytes());
-        fos.close();
-        return convFile;
+        // create file with a safe unique name
+        File tempFile = File.createTempFile("upload-", "=" + file.getOriginalFilename());
+        // write the contents of the multipartfile to the temp file
+        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+            fos.write(file.getBytes());
+        }
+        // return file so it can bve used
+        return tempFile;
+
     }
 
 }
