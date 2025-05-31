@@ -2,6 +2,7 @@ package com.trackie.trackie.controller;
 
 import com.trackie.trackie.model.Job;
 import com.trackie.trackie.repository.JobRepository;
+import com.trackie.trackie.service.AIExtractionService;
 import com.trackie.trackie.service.S3Service;
 import com.trackie.trackie.service.TextractService;
 
@@ -12,20 +13,25 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 // tell springboot that this is a REST API
 @RestController
 @RequestMapping("/api/jobs") // base route
 @CrossOrigin(origins = "*") // allows requests from frontend
 public class JobController {
+
     @Autowired // injects database helper
     private JobRepository jobRepo;
 
-    @Autowired
+    @Autowired // injects s3 service code
     private S3Service s3Service;
 
-    @Autowired
+    @Autowired // injects textract service code
     private TextractService textractService;
+
+    @Autowired // injects aiExtraction service code
+    private AIExtractionService aiExtractionService;
 
     // GET // api /jobs
     @GetMapping // returns all jobs
@@ -58,10 +64,13 @@ public class JobController {
     }
 
     @PostMapping("/upload-analyze")
-    public ResponseEntity<String> uploadAndAnalyze(@RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<Map<String, Object>> uploadAndAnalyze(@RequestParam("file") MultipartFile file)
+            throws IOException {
         String fileName = s3Service.uploadFile(file);
         String extractedText = textractService.extractText(fileName);
-        return ResponseEntity.ok(extractedText);
+        Map<String, Object> structuredData = aiExtractionService.analyzeText(extractedText);
+
+        return ResponseEntity.ok(structuredData);
     }
 
 }
