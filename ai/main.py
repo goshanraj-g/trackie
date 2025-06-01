@@ -22,17 +22,7 @@ def analyze_job_post(job: JobPost):
         "url": None,
         "tech_stack": [],
     }
-
-    for ent in doc.ents:
-        if ent.label_ == "ORG":
-            data["company"] = ent.text
-            break
-
-    for ent in doc.ents:
-        if ent.label == "GPE":
-            data["location"] = ent.text
-            break
-
+    
     job_titles = [
         "Software Engineer",
         "Developer",
@@ -42,6 +32,36 @@ def analyze_job_post(job: JobPost):
         "Project Manager",
         "Product Designer",
     ]
+    known_tech = [
+        "Python",
+        "Java",
+        "JavaScript",
+        "React",
+        "Node.js",
+        "Django",
+        "Spring",
+        "AWS",
+        "Docker",
+        "SQL",
+    ]
+
+    for ent in doc.ents:
+        # figures out if company is an organization
+        
+        if ent.label_ == "ORG":
+            data["company"] = ent.text
+            break
+        if not data["company"]:
+            first_word_match = re.match(r'^([A-Z][a-zA-Z0-9&]+)', job.text)
+            if first_word_match:
+                data["company"] = first_word_match.group()
+
+
+    for ent in doc.ents:
+        # figures out location
+        if ent.label_ == "GPE":
+            data["location"] = ent.text
+            break
 
     for title in job_titles:
         if title.lower() in job.text.lower():
@@ -52,18 +72,7 @@ def analyze_job_post(job: JobPost):
     if url_match:
         data["url"] = url_match.group()
 
-        known_tech = [
-            "Python",
-            "Java",
-            "JavaScript",
-            "React",
-            "Node.js",
-            "Django",
-            "Spring",
-            "AWS",
-            "Docker",
-            "SQL",
-        ]
+
     data["tech_stack"] = [
         tech for tech in known_tech if tech.lower() in job.text.lower()
     ]
