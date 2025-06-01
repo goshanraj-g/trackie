@@ -51,11 +51,6 @@ def analyze_job_post(job: JobPost):
         if ent.label_ == "ORG":
             data["company"] = ent.text
             break
-        if not data["company"]:
-            first_word_match = re.match(r'^([A-Z][a-zA-Z0-9&]+)', job.text)
-            if first_word_match:
-                data["company"] = first_word_match.group()
-
 
     for ent in doc.ents:
         # figures out location
