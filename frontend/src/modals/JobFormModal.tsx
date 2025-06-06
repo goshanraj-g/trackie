@@ -43,6 +43,40 @@ export default function JobFormModal({
   const [url, setUrl] = useState(jobToEdit?.url || "");
   const [notes, setNotes] = useState(jobToEdit?.notes || "");
   const [status, setStatus] = useState(jobToEdit?.status || "");
+  const [rawText, setRawText] = useState("");
+
+  const handleAnalyzeImage = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("http://localhost:8000/upload-analyze", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Failed to analyze");
+
+      const data = await res.json();
+
+      if (data.company) setCompanyName(data.company);
+      if (data.title) setTitle(data.title);
+      if (data.url) setUrl(data.url);
+
+      let extraNotes = "";
+      if (data.location) {
+        extraNotes += `Location: ${data.location}\n`;
+      }
+      if (data.tech_stack?.length > 0)
+        extraNotes += `Tech Stack: ${data.tech_stack.join(", ")}\n`;
+
+      if (extraNotes) {
+        setNotes((prev) => `${extraNotes}${prev}`);
+      }
+    } catch (err) {
+      console.error("error analyzing text", err);
+    }
+  };
 
   const handleDelete = async () => {
     if (!jobToEdit) return;
@@ -186,6 +220,18 @@ export default function JobFormModal({
               ))}
             </SelectContent>
           </Select>
+        </FormField>
+        <FormField htmlFor="image" label="Upload Job Description Image">
+          <Input
+            id="image"
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              if (e.target.files?.[0]) {
+                handleAnalyzeImage(e.target.files[0]);
+              }
+            }}
+          />
         </FormField>
 
         <DialogFooter className="space-x-2">
