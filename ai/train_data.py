@@ -1,4 +1,5 @@
-import spacy
+import spacy, random
+from spacy.util import minibatch
 import os
 import random
 from spacy.training.example import (
@@ -6,10 +7,10 @@ from spacy.training.example import (
 )  # example -> combines raw text + annotations for training
 
 # blank english NLP pipeline
-nlp = spacy.blank("en")
+nlp = spacy.load("en_core_web_trf")
 
 # add named entity recognizer to pipeline
-ner = nlp.add_pipe("ner")
+ner = nlp.get_pipe("ner")
 
 os.makedirs("models", exist_ok=True)
 
@@ -110,12 +111,29 @@ for text, annotations in TRAIN_DATA:
     example = Example.from_dict(doc, annotations)  # pair tokens, and entities
     examples.append(example)
 
-# start training model
-optimizer = nlp.begin_training()
-for i in range(30):
-    random.shuffle(examples)
-    for example in examples:
-        nlp.update([example], sgd=optimizer)
+# identify and disable all non-ner pipeline components (tok2vec, tagger, parser)
+# building a list of everything except our named entity recognizer 
+# this makes it so it wont run on every update, speeding things up
+other_pipes = [p for p in nlp.pipe_names if p != "ner"]
+with nlp.disable_pipes(*other_pipes):
+    optimizer = nlp.resume_training()
+    # we loaded a pretrained model, so we resume training
+    for epoch in range(30):
+        random.shuffle(examples)
+        losses = {}
+        # train for 30 passes (epochs) over training data
+        # shuffling the examples so each epoch avoids biasing the model for a particular order
+        # losses dict to collect loss values for this epoch ( sum/average of the models prediction errors over all training examples in that epoch )
+        for batch in minibatch(examples, size=8):
+            nlp.update(batch, sgd=optimizer, drop=0.2, losses=losses)
+        # split list of example in small batches up to 8 samples eachy
+        # on each batch, the model does a forward pass: predicts entity labels for all examples in the batch
+        # compute loss, measures how far those predictions are from actual annotations
+        # backward pass, uses that loss to ajust (optimizer) the ner weights to improve model
+        # dropout (drop=0.2) -> randomly drops 20% of models internal connections to reduce overfitting
+        # accumulate, adds batch contributions to running total in losses[ner]
+        print(f"Epoch {epoch+1} — Loss: {losses['ner']:.3f}")
+
 
 # save to disk
 nlp.to_disk("models/job_post_ner")
