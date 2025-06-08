@@ -22,6 +22,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Job } from "@/lib/types";
 import { updateJob, deleteJob } from "@/lib/api";
+import { Upload } from "lucide-react";
 
 export default function JobFormModal({
   open,
@@ -151,6 +152,25 @@ export default function JobFormModal({
     setStatus(jobToEdit?.status || "");
   }, [jobToEdit, open]);
 
+  useEffect(() => {
+    const onPaste = (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (const item of items) {
+        if (item.type.startsWith("image/")) {
+          const file = item.getAsFile();
+          if (file) {
+            e.preventDefault();
+            handleAnalyzeImage(file);
+          }
+        }
+      }
+    };
+    document.addEventListener("paste", onPaste as any);
+    return () => document.removeEventListener("paste", onPaste as any);
+  }, []);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[520px]">
@@ -219,17 +239,57 @@ export default function JobFormModal({
             </SelectContent>
           </Select>
         </FormField>
-        <FormField htmlFor="image" label="Upload Job Description Image">
-          <Input
+        <FormField htmlFor="image" label="Upload or Paste Image">
+          {/* Hidden file input */}
+          <input
             id="image"
             type="file"
             accept="image/*"
+            style={{ display: "none" }}
             onChange={(e) => {
-              if (e.target.files?.[0]) {
-                handleAnalyzeImage(e.target.files[0]);
-              }
+              const file = e.target.files?.[0];
+              if (file) handleAnalyzeImage(file);
             }}
           />
+
+          {/* Container for click / drag / paste */}
+          <div
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              const file = e.dataTransfer.files[0];
+              if (file?.type.startsWith("image/")) handleAnalyzeImage(file);
+            }}
+            onPaste={(e) => {
+              const items = e.clipboardData?.items;
+              if (!items) return;
+              for (const item of items) {
+                if (item.type.startsWith("image/")) {
+                  e.preventDefault();
+                  const file = item.getAsFile();
+                  if (file) handleAnalyzeImage(file);
+                  break;
+                }
+              }
+            }}
+            onClick={() => document.getElementById("image")?.click()}
+            className="
+      relative 
+      p-6 
+      border-2 border-dashed rounded-lg 
+      text-center 
+      cursor-pointer 
+      hover:border-primary transition
+    "
+          >
+            {/* Your custom UI */}
+            <div className="flex flex-col items-center justify-center space-y-2">
+              <Upload className="h-8 w-8 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">
+                Drag & drop, paste (Ctrl+V), or click to upload
+              </p>
+            </div>
+          </div>
         </FormField>
 
         <DialogFooter className="space-x-2">
