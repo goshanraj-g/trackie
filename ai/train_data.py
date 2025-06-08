@@ -100,6 +100,149 @@ TRAIN_DATA = [
         "NVIDIA Software Engineering Intern, Robotics Perception Research - Fall 2025",
         {"entities": [(0, 6, "COMPANY"), (7, 70, "JOB_TITLE")]},
     ),
+    (
+        "Backend Java Engineer (T4 Only) AMISEQ Toronto, ON (Hybrid)",
+        {
+            "entities": [
+                (0, 31, "JOB_TITLE"),
+                (32, 39, "COMPANY"),
+                (40, 50, "LOCATION"),
+            ]
+        },
+    ),
+    (
+        "Full Stack Engineering Lead NationGraph Toronto, ON (On-site)",
+        {
+            "entities": [
+                (0, 27, "JOB_TITLE"),
+                (28, 39, "COMPANY"),
+                (40, 51, "LOCATION"),
+            ]
+        },
+    ),
+    (
+        "Research and Development Intern Rocscience Toronto, ON (Hybrid)",
+        {
+            "entities": [
+                (0, 31, "JOB_TITLE"),
+                (32, 42, "COMPANY"),
+                (43, 54, "LOCATION"),
+            ]
+        },
+    ),
+    (
+        "React Native Developer (Internship) Xenara Inc. Mississauga, ON (On-site)",
+        {
+            "entities": [
+                (0, 34, "JOB_TITLE"),
+                (36, 47, "COMPANY"),
+                (48, 63, "LOCATION"),
+            ]
+        },
+    ),
+    (
+        "Python Developer Synchron Mississauga, ON",
+        {
+            "entities": [
+                (0, 16, "JOB_TITLE"),  # "Python Developer"
+                (17, 25, "COMPANY"),  # "Synchron"
+                (26, 41, "LOCATION"),  # "Mississauga, ON"
+            ]
+        },
+    ),
+    (
+        "Senior Java and Python Developer (with AWS skills) Luxoft Toronto, ON",
+        {
+            "entities": [
+                (
+                    0,
+                    50,
+                    "JOB_TITLE",
+                ),  # "Senior Java and Python Developer (with AWS skills)"
+                (51, 57, "COMPANY"),  # "Luxoft"
+                (58, 69, "LOCATION"),  # "Toronto, ON"
+            ]
+        },
+    ),
+    (
+        "Python Developer Tata Consultancy Services Toronto, ON",
+        {
+            "entities": [
+                (0, 16, "JOB_TITLE"),  # "Python Developer"
+                (17, 42, "COMPANY"),  # "Tata Consultancy Services"
+                (43, 54, "LOCATION"),  # "Toronto, ON"
+            ]
+        },
+    ),
+    (
+        "iOS Developer Akkodis Toronto, ON",
+        {
+            "entities": [
+                (0, 13, "JOB_TITLE"),  # "iOS Developer"
+                (14, 21, "COMPANY"),  # "Akkodis"
+                (22, 33, "LOCATION"),  # "Toronto, ON"
+            ]
+        },
+    ),
+    (
+        "Mainframe Developer Hays Ontario, Canada",
+        {
+            "entities": [
+                (0, 19, "JOB_TITLE"),  # "Mainframe Developer"
+                (20, 24, "COMPANY"),  # "Hays"
+                (25, 40, "LOCATION"),  # "Ontario, Canada"
+            ]
+        },
+    ),
+    (
+        "Artificial Intelligence Engineer Open Systems Technologies Mississauga, ON",
+        {
+            "entities": [
+                (0, 32, "JOB_TITLE"),  # "Artificial Intelligence Engineer"
+                (33, 58, "COMPANY"),  # "Open Systems Technologies"
+                (59, 74, "LOCATION"),  # "Mississauga, ON"
+            ]
+        },
+    ),
+    (
+        "Senior Java Full Stack Developer (Angular) Capgemini Mississauga, ON",
+        {
+            "entities": [
+                (0, 42, "JOB_TITLE"),  # "Senior Java Full Stack Developer (Angular)"
+                (43, 52, "COMPANY"),  # "Capgemini"
+                (53, 68, "LOCATION"),  # "Mississauga, ON"
+            ]
+        },
+    ),
+    (
+        "Senior Front End Developer Kubra Mississauga, ON",
+        {
+            "entities": [
+                (0, 26, "JOB_TITLE")(27, 32, "COMPANY"),
+                (33, 48, "LOCATION"),
+            ]
+        },
+    ),
+    (
+        "Python Full Stack Engineer SII Canada Toronto, ON",
+        {
+            "entities": [
+                (0, 26, "JOB_TITLE"),
+                (27, 37, "COMPANY"),
+                (38, 49, "LOCATION"),
+            ]
+        },
+    ),
+    (
+        "Rust Engineer - Decentralized AI Models Axiom Recruit Canada",
+        {
+            "entities": [
+                (0, 39, "JOB_TITLE"),
+                (40, 53, "COMPANY"),
+                (54, 60, "LOCATION"),
+            ]
+        },
+    ),
 ]
 
 # convert training data into spaCy example objects
@@ -112,7 +255,7 @@ for text, annotations in TRAIN_DATA:
     examples.append(example)
 
 # identify and disable all non-ner pipeline components (tok2vec, tagger, parser)
-# building a list of everything except our named entity recognizer 
+# building a list of everything except our named entity recognizer
 # this makes it so it wont run on every update, speeding things up
 other_pipes = [p for p in nlp.pipe_names if p != "ner"]
 with nlp.disable_pipes(*other_pipes):
@@ -138,3 +281,6 @@ with nlp.disable_pipes(*other_pipes):
 # save to disk
 nlp.to_disk("models/job_post_ner")
 print("model trained")
+
+
+# spacy train config.cfg --output ./models --paths.train ./train.spacy --paths.dev ./dev.spacy
