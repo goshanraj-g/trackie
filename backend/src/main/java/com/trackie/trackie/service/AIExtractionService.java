@@ -11,7 +11,7 @@ import java.util.Map;
 @Service
 public class AIExtractionService {
     public Map<String, Object> analyzeText(String extractedText) {
-        String aiApiUrl = "http://localhost:8000/analyze";
+        String aiApiUrl = "http://localhost:8000/upload-analyze";
 
         // create a new HTTP client to make POST request (responsible for establishing
         // connection, sending, etc...)
