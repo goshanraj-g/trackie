@@ -59,19 +59,17 @@ export default function JobFormModal({
 
       const data = await res.json();
 
-      if (data.company) setCompanyName(data.company);
-      if (data.title) setTitle(data.title);
-      if (data.url) setUrl(data.url);
+      setCompanyName(data.company ?? "");
+      setTitle(data.title ?? "");
+      setUrl(data.url ?? "");
 
-      let extraNotes = "";
-      if (data.location) {
-        extraNotes += `Location: ${data.location}\n`;
-      }
-      if (data.tech_stack?.length > 0)
-        extraNotes += `Tech Stack: ${data.tech_stack.join(", ")}\n`;
+      let extra = "";
+      if (data.location) extra += `Location: ${data.location}\n`;
+      if (data.tech_stack?.length)
+        extra += `Tech Stack: ${data.tech_stack.join(", ")}\n`;
 
-      if (extraNotes) {
-        setNotes((prev) => `${extraNotes}${prev}`);
+      if (extra) {
+        setNotes((prev) => extra + prev);
       }
     } catch (err) {
       console.error("error analyzing text", err);
