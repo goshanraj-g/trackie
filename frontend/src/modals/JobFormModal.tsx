@@ -50,7 +50,7 @@ export default function JobFormModal({
     formData.append("file", file);
 
     try {
-      const res = await fetch("http://localhost:8000/upload-analyze", {
+      const res = await fetch("http://localhost:8080/api/jobs/upload-analyze", {
         method: "POST",
         body: formData,
       });

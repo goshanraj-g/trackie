@@ -47,13 +47,68 @@ def analyze_job_post(job: JobPost):
         "Python",
         "Java",
         "JavaScript",
+        "TypeScript",
+        "C++",
+        "C#",
+        "Go",
+        "Rust",
+        "Ruby",
+        "Kotlin",
+        "Swift",
+
+        # Frontend Frameworks & Libraries
         "React",
+        "Next.js",
+        "Vue.js",
+        "Svelte",
+        "Tailwind CSS",
+        "Bootstrap",
+
+        # Backend Frameworks
         "Node.js",
+        "Express.js",
         "Django",
-        "Spring",
+        "Flask",
+        "Spring Boot",
+        "FastAPI",
+        "NestJS",
+        "Rails",
+
+        # Cloud & DevOps
         "AWS",
+        "Azure",
+        "Google Cloud",
         "Docker",
+        "Kubernetes",
+        "Terraform",
+        "GitHub Actions",
+        "Jenkins",
+
+        # Databases
         "SQL",
+        "PostgreSQL",
+        "MySQL",
+        "MongoDB",
+        "Redis",
+        "SQLite",
+        "DynamoDB",
+
+        # Testing & CI
+        "Jest",
+        "JUnit",
+        "PyTest",
+        "Cypress",
+        "Selenium",
+
+        # Tools & Misc
+        "Git",
+        "Figma",
+        "Postman",
+        "GraphQL",
+        "REST",
+        "WebSockets",
+        "Firebase",
+        "Supabase",
     ]
 
     for ent in doc.ents:
