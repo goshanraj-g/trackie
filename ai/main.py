@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import spacy
 import re
@@ -6,12 +7,22 @@ import re
 app = FastAPI()
 nlp = spacy.load("en_core_web_sm")
 
+origins = ["http://localhost:3000"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 class JobPost(BaseModel):
     text: str
 
 
-@app.post("/analyze")
+@app.post("/upload-analyze")
 def analyze_job_post(job: JobPost):
     doc = nlp(job.text)
 
@@ -22,7 +33,7 @@ def analyze_job_post(job: JobPost):
         "url": None,
         "tech_stack": [],
     }
-    
+
     job_titles = [
         "Software Engineer",
         "Developer",
@@ -47,7 +58,7 @@ def analyze_job_post(job: JobPost):
 
     for ent in doc.ents:
         # figures out if company is an organization
-        
+
         if ent.label_ == "ORG":
             data["company"] = ent.text
             break
@@ -66,7 +77,6 @@ def analyze_job_post(job: JobPost):
     url_match = re.search(r"(https?://\S+)", job.text)
     if url_match:
         data["url"] = url_match.group()
-
 
     data["tech_stack"] = [
         tech for tech in known_tech if tech.lower() in job.text.lower()
