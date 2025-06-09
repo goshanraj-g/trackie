@@ -1,286 +1,451 @@
-import spacy, random
-from spacy.util import minibatch
-import os
+import spacy
 import random
-from spacy.training.example import (
-    Example,
-)  # example -> combines raw text + annotations for training
+from spacy.util import minibatch
+from spacy.training.example import Example
+import os
 
-# blank english NLP pipeline
+# load the model
 nlp = spacy.load("en_core_web_trf")
 
-# add named entity recognizer to pipeline
+# get the named entity recognizer entity
 ner = nlp.get_pipe("ner")
 
+# create models directory
 os.makedirs("models", exist_ok=True)
 
-# define new entity titles for training
+# Add new labels
 ner.add_label("COMPANY")
 ner.add_label("JOB_TITLE")
 ner.add_label("LOCATION")
 
 # training data
 TRAIN_DATA = [
+    # standard formats
     (
-        "Google is hiring a Software Engineer in Toronto.",
-        {"entities": [(0, 6, "COMPANY"), (19, 36, "JOB_TITLE"), (40, 47, "LOCATION")]},
+        "Software Engineer at Google",
+        {"entities": [(0, 17, "JOB_TITLE"), (21, 27, "COMPANY")]},
     ),
     (
-        "Meta is looking for a Data Analyst based in New York.",
-        {"entities": [(0, 4, "COMPANY"), (21, 33, "JOB_TITLE"), (44, 52, "LOCATION")]},
+        "Data Scientist at Meta",
+        {"entities": [(0, 14, "JOB_TITLE"), (18, 22, "COMPANY")]},
     ),
     (
-        "Join Amazon as a Product Manager in Vancouver.",
-        {"entities": [(5, 11, "COMPANY"), (15, 31, "JOB_TITLE"), (35, 44, "LOCATION")]},
+        "Product Manager at Amazon",
+        {"entities": [(0, 15, "JOB_TITLE"), (19, 25, "COMPANY")]},
     ),
     (
-        "IBM Developer Intern (8 or 12 month term - Toronto or Montreal)",
-        {
-            "entities": [
-                (0, 3, "COMPANY"),
-                (4, 19, "JOB_TITLE"),
-                (47, 53, "LOCATION"),
-                (57, 65, "LOCATION"),
-            ]
-        },
+        "Frontend Developer at Shopify",
+        {"entities": [(0, 18, "JOB_TITLE"), (22, 29, "COMPANY")]},
     ),
     (
-        "Veeva Systems Associate Software Engineer - Seeking 2024 and 2025 Grads",
-        {"entities": [(0, 13, "COMPANY"), (14, 41, "JOB_TITLE")]},
+        "DevOps Engineer at Netflix",
+        {"entities": [(0, 15, "JOB_TITLE"), (19, 26, "COMPANY")]},
+    ),
+    # location after company
+    (
+        "Software Engineer at Google Toronto, ON",
+        {"entities": [(0, 17, "JOB_TITLE"), (21, 27, "COMPANY"), (28, 39, "LOCATION")]},
     ),
     (
-        "Google Student Researcher, BS/MS, Winter/Summer 2025",
-        {"entities": [(0, 6, "COMPANY"), (7, 25, "JOB_TITLE")]},
+        "Data Analyst at Meta Vancouver, BC",
+        {"entities": [(0, 12, "JOB_TITLE"), (16, 20, "COMPANY"), (21, 34, "LOCATION")]},
     ),
     (
-        "CIBC Application/Software Developer Co-op - Commercial Banking and Payments Technology",
-        {"entities": [(0, 4, "COMPANY"), (5, 41, "JOB_TITLE")]},
+        "UX Designer at Airbnb San Francisco, CA",
+        {"entities": [(0, 11, "JOB_TITLE"), (15, 21, "COMPANY"), (22, 39, "LOCATION")]},
     ),
     (
-        "GeoComply ML Data Scientist Intern (Toronto)",
-        {"entities": [(0, 9, "COMPANY"), (10, 35, "JOB_TITLE"), (37, 44, "LOCATION")]},
+        "Backend Engineer at Stripe New York, NY",
+        {"entities": [(0, 16, "JOB_TITLE"), (20, 26, "COMPANY"), (27, 39, "LOCATION")]},
     ),
     (
-        "Pinterest Software Engineering Intern 2025 (Toronto)",
-        {"entities": [(0, 9, "COMPANY"), (10, 42, "JOB_TITLE"), (44, 51, "LOCATION")]},
+        "Machine Learning Engineer at OpenAI Toronto, Canada",
+        {"entities": [(0, 25, "JOB_TITLE"), (29, 35, "COMPANY"), (36, 51, "LOCATION")]},
+    ),
+    # companyt name first
+    (
+        "Microsoft Software Development Engineer",
+        {"entities": [(0, 9, "COMPANY"), (10, 39, "JOB_TITLE")]},
     ),
     (
-        "Auvik Software Developer Co-op",
-        {"entities": [(0, 5, "COMPANY"), (6, 30, "JOB_TITLE")]},
+        "Apple iOS Developer",
+        {"entities": [(0, 5, "COMPANY"), (6, 19, "JOB_TITLE")]},
     ),
     (
-        "Zip Software Engineer Intern (Fall 2025)",
-        {"entities": [(0, 3, "COMPANY"), (4, 31, "JOB_TITLE")]},
+        "Tesla Automotive Software Engineer",
+        {"entities": [(0, 5, "COMPANY"), (6, 34, "JOB_TITLE")]},
     ),
     (
-        "Naptha AI Software Engineer (Intern)",
-        {"entities": [(0, 9, "COMPANY"), (10, 35, "JOB_TITLE")]},
+        "Spotify Backend Developer",
+        {"entities": [(0, 7, "COMPANY"), (8, 25, "JOB_TITLE")]},
     ),
     (
-        "Boson AI Deep Learning Scientist",
-        {"entities": [(0, 8, "COMPANY"), (9, 32, "JOB_TITLE")]},
+        "Uber Senior Software Engineer",
+        {"entities": [(0, 4, "COMPANY"), (5, 29, "JOB_TITLE")]},
+    ),
+    # company name, and location
+    (
+        "Google Software Engineer Toronto, ON",
+        {"entities": [(0, 6, "COMPANY"), (7, 24, "JOB_TITLE"), (25, 36, "LOCATION")]},
     ),
     (
-        "World Vision Canada Intern, Employee-Centric Delivery",
-        {"entities": [(0, 21, "COMPANY"), (22, 57, "JOB_TITLE")]},
+        "Amazon Web Services Cloud Engineer Vancouver, BC",
+        {"entities": [(0, 19, "COMPANY"), (20, 34, "JOB_TITLE"), (35, 48, "LOCATION")]},
     ),
     (
-        "BMO Developer - Data, AI and Platform Development & Support (New or Recent Graduate)",
-        {"entities": [(0, 3, "COMPANY"), (4, 77, "JOB_TITLE")]},
+        "IBM Data Scientist Montreal, QC",
+        {"entities": [(0, 3, "COMPANY"), (4, 18, "JOB_TITLE"), (19, 31, "LOCATION")]},
     ),
     (
-        "Amazon Robotics - Software Development Engineer Co-Op - 2025 - Toronto",
-        {"entities": [(0, 15, "COMPANY"), (18, 61, "JOB_TITLE"), (64, 71, "LOCATION")]},
+        "Salesforce Product Manager San Francisco, CA",
+        {"entities": [(0, 10, "COMPANY"), (11, 26, "JOB_TITLE"), (27, 44, "LOCATION")]},
     ),
     (
-        "Capital One Intern, Mobile Software Engineer - Team Capital One Travel - Fall 2025",
-        {"entities": [(0, 11, "COMPANY"), (12, 71, "JOB_TITLE")]},
+        "Shopify Full Stack Developer Ottawa, ON",
+        {"entities": [(0, 7, "COMPANY"), (8, 29, "JOB_TITLE"), (30, 39, "LOCATION")]},
+    ),
+    # internships
+    (
+        "Software Engineering Intern at Facebook",
+        {"entities": [(0, 27, "JOB_TITLE"), (31, 39, "COMPANY")]},
     ),
     (
-        "NVIDIA Software Engineering Intern, Robotics Perception Research - Fall 2025",
-        {"entities": [(0, 6, "COMPANY"), (7, 70, "JOB_TITLE")]},
+        "Data Science Intern at LinkedIn",
+        {"entities": [(0, 19, "JOB_TITLE"), (23, 31, "COMPANY")]},
     ),
     (
-        "Backend Java Engineer (T4 Only) AMISEQ Toronto, ON (Hybrid)",
-        {
-            "entities": [
-                (0, 31, "JOB_TITLE"),
-                (32, 39, "COMPANY"),
-                (40, 50, "LOCATION"),
-            ]
-        },
+        "Google Software Engineer Intern",
+        {"entities": [(0, 6, "COMPANY"), (7, 32, "JOB_TITLE")]},
     ),
     (
-        "Full Stack Engineering Lead NationGraph Toronto, ON (On-site)",
-        {
-            "entities": [
-                (0, 27, "JOB_TITLE"),
-                (28, 39, "COMPANY"),
-                (40, 51, "LOCATION"),
-            ]
-        },
+        "Microsoft Product Management Intern Seattle, WA",
+        {"entities": [(0, 9, "COMPANY"), (10, 35, "JOB_TITLE"), (36, 47, "LOCATION")]},
     ),
     (
-        "Research and Development Intern Rocscience Toronto, ON (Hybrid)",
-        {
-            "entities": [
-                (0, 31, "JOB_TITLE"),
-                (32, 42, "COMPANY"),
-                (43, 54, "LOCATION"),
-            ]
-        },
+        "Amazon SDE Intern Toronto, ON",
+        {"entities": [(0, 6, "COMPANY"), (7, 17, "JOB_TITLE"), (18, 29, "LOCATION")]},
+    ),
+    # senior/leads
+    (
+        "Senior Software Engineer at Slack",
+        {"entities": [(0, 24, "JOB_TITLE"), (28, 33, "COMPANY")]},
     ),
     (
-        "React Native Developer (Internship) Xenara Inc. Mississauga, ON (On-site)",
-        {
-            "entities": [
-                (0, 34, "JOB_TITLE"),
-                (36, 47, "COMPANY"),
-                (48, 63, "LOCATION"),
-            ]
-        },
+        "Lead Data Scientist at Palantir",
+        {"entities": [(0, 19, "JOB_TITLE"), (23, 31, "COMPANY")]},
     ),
     (
-        "Python Developer Synchron Mississauga, ON",
-        {
-            "entities": [
-                (0, 16, "JOB_TITLE"),  # "Python Developer"
-                (17, 25, "COMPANY"),  # "Synchron"
-                (26, 41, "LOCATION"),  # "Mississauga, ON"
-            ]
-        },
+        "Principal Engineer at Databricks",
+        {"entities": [(0, 18, "JOB_TITLE"), (22, 32, "COMPANY")]},
     ),
     (
-        "Senior Java and Python Developer (with AWS skills) Luxoft Toronto, ON",
-        {
-            "entities": [
-                (
-                    0,
-                    50,
-                    "JOB_TITLE",
-                ),  # "Senior Java and Python Developer (with AWS skills)"
-                (51, 57, "COMPANY"),  # "Luxoft"
-                (58, 69, "LOCATION"),  # "Toronto, ON"
-            ]
-        },
+        "Staff Software Engineer at GitHub",
+        {"entities": [(0, 23, "JOB_TITLE"), (27, 33, "COMPANY")]},
     ),
     (
-        "Python Developer Tata Consultancy Services Toronto, ON",
-        {
-            "entities": [
-                (0, 16, "JOB_TITLE"),  # "Python Developer"
-                (17, 42, "COMPANY"),  # "Tata Consultancy Services"
-                (43, 54, "LOCATION"),  # "Toronto, ON"
-            ]
-        },
+        "Senior Product Manager at Zoom",
+        {"entities": [(0, 22, "JOB_TITLE"), (26, 30, "COMPANY")]},
+    ),
+    # co-op
+    (
+        "Software Developer Co-op at Blackberry",
+        {"entities": [(0, 24, "JOB_TITLE"), (28, 38, "COMPANY")]},
     ),
     (
-        "iOS Developer Akkodis Toronto, ON",
-        {
-            "entities": [
-                (0, 13, "JOB_TITLE"),  # "iOS Developer"
-                (14, 21, "COMPANY"),  # "Akkodis"
-                (22, 33, "LOCATION"),  # "Toronto, ON"
-            ]
-        },
+        "Data Analyst Co-op at RBC",
+        {"entities": [(0, 18, "JOB_TITLE"), (22, 25, "COMPANY")]},
     ),
     (
-        "Mainframe Developer Hays Ontario, Canada",
-        {
-            "entities": [
-                (0, 19, "JOB_TITLE"),  # "Mainframe Developer"
-                (20, 24, "COMPANY"),  # "Hays"
-                (25, 40, "LOCATION"),  # "Ontario, Canada"
-            ]
-        },
+        "Shopify Software Engineer Co-op Waterloo, ON",
+        {"entities": [(0, 7, "COMPANY"), (8, 31, "JOB_TITLE"), (32, 45, "LOCATION")]},
     ),
     (
-        "Artificial Intelligence Engineer Open Systems Technologies Mississauga, ON",
-        {
-            "entities": [
-                (0, 32, "JOB_TITLE"),  # "Artificial Intelligence Engineer"
-                (33, 58, "COMPANY"),  # "Open Systems Technologies"
-                (59, 74, "LOCATION"),  # "Mississauga, ON"
-            ]
-        },
+        "TD Bank QA Engineer Co-op Toronto, ON",
+        {"entities": [(0, 7, "COMPANY"), (8, 25, "JOB_TITLE"), (26, 37, "LOCATION")]},
     ),
     (
-        "Senior Java Full Stack Developer (Angular) Capgemini Mississauga, ON",
-        {
-            "entities": [
-                (0, 42, "JOB_TITLE"),  # "Senior Java Full Stack Developer (Angular)"
-                (43, 52, "COMPANY"),  # "Capgemini"
-                (53, 68, "LOCATION"),  # "Mississauga, ON"
-            ]
-        },
+        "Wealthsimple Backend Developer Co-op",
+        {"entities": [(0, 12, "COMPANY"), (13, 36, "JOB_TITLE")]},
+    ),
+    # specific tech 
+    (
+        "React Developer at Notion",
+        {"entities": [(0, 15, "JOB_TITLE"), (19, 25, "COMPANY")]},
     ),
     (
-        "Senior Front End Developer Kubra Mississauga, ON",
-        {
-            "entities": [
-                (0, 26, "JOB_TITLE")(27, 32, "COMPANY"),
-                (33, 48, "LOCATION"),
-            ]
-        },
+        "Python Developer at Dropbox",
+        {"entities": [(0, 16, "JOB_TITLE"), (20, 27, "COMPANY")]},
     ),
     (
-        "Python Full Stack Engineer SII Canada Toronto, ON",
-        {
-            "entities": [
-                (0, 26, "JOB_TITLE"),
-                (27, 37, "COMPANY"),
-                (38, 49, "LOCATION"),
-            ]
-        },
+        "Node.js Engineer at Discord",
+        {"entities": [(0, 17, "JOB_TITLE"), (21, 28, "COMPANY")]},
     ),
     (
-        "Rust Engineer - Decentralized AI Models Axiom Recruit Canada",
-        {
-            "entities": [
-                (0, 39, "JOB_TITLE"),
-                (40, 53, "COMPANY"),
-                (54, 60, "LOCATION"),
-            ]
-        },
+        "DevOps Engineer at HashiCorp",
+        {"entities": [(0, 15, "JOB_TITLE"), (19, 28, "COMPANY")]},
+    ),
+    (
+        "Mobile Developer at Snapchat",
+        {"entities": [(0, 16, "JOB_TITLE"), (20, 28, "COMPANY")]},
+    ),
+    # freelance/contract
+    (
+        "Contract Software Engineer at Upwork",
+        {"entities": [(0, 27, "JOB_TITLE"), (31, 37, "COMPANY")]},
+    ),
+    (
+        "Freelance Web Developer at Fiverr",
+        {"entities": [(0, 23, "JOB_TITLE"), (27, 33, "COMPANY")]},
+    ),
+    (
+        "Consultant Data Scientist at Accenture",
+        {"entities": [(0, 25, "JOB_TITLE"), (29, 38, "COMPANY")]},
+    ),
+    # remote positions
+    (
+        "Remote Software Engineer at GitLab",
+        {"entities": [(0, 24, "JOB_TITLE"), (28, 34, "COMPANY")]},
+    ),
+    (
+        "Software Engineer (Remote) at Atlassian",
+        {"entities": [(0, 26, "JOB_TITLE"), (30, 39, "COMPANY")]},
+    ),
+    (
+        "Shopify Remote Frontend Developer Canada",
+        {"entities": [(0, 7, "COMPANY"), (8, 33, "JOB_TITLE"), (34, 40, "LOCATION")]},
+    ),
+    # canadian companies and locations
+    (
+        "Software Developer at Cohere Toronto, ON",
+        {"entities": [(0, 18, "JOB_TITLE"), (22, 28, "COMPANY"), (29, 40, "LOCATION")]},
+    ),
+    (
+        "Machine Learning Engineer at Coveo Quebec City, QC",
+        {"entities": [(0, 25, "JOB_TITLE"), (29, 34, "COMPANY"), (35, 50, "LOCATION")]},
+    ),
+    (
+        "Hootsuite Social Media Developer Vancouver, BC",
+        {"entities": [(0, 9, "COMPANY"), (10, 32, "JOB_TITLE"), (33, 46, "LOCATION")]},
+    ),
+    (
+        "Mogo Fintech Developer Calgary, AB",
+        {"entities": [(0, 4, "COMPANY"), (5, 22, "JOB_TITLE"), (23, 34, "LOCATION")]},
+    ),
+    (
+        "Nuvei Payment Systems Engineer Montreal, QC",
+        {"entities": [(0, 5, "COMPANY"), (6, 30, "JOB_TITLE"), (31, 43, "LOCATION")]},
+    ),
+    # different location formats
+    (
+        "Software Engineer at Google • Toronto, Ontario",
+        {"entities": [(0, 17, "JOB_TITLE"), (21, 27, "COMPANY"), (30, 47, "LOCATION")]},
+    ),
+    (
+        "Data Scientist at Meta | Vancouver, British Columbia",
+        {"entities": [(0, 14, "JOB_TITLE"), (18, 22, "COMPANY"), (25, 52, "LOCATION")]},
+    ),
+    (
+        "Product Manager at Amazon - Seattle, Washington",
+        {"entities": [(0, 15, "JOB_TITLE"), (19, 25, "COMPANY"), (28, 47, "LOCATION")]},
+    ),
+    # entry level positions
+    (
+        "Junior Software Developer at Wix",
+        {"entities": [(0, 25, "JOB_TITLE"), (29, 32, "COMPANY")]},
+    ),
+    (
+        "Entry Level Data Analyst at IBM",
+        {"entities": [(0, 24, "JOB_TITLE"), (28, 31, "COMPANY")]},
+    ),
+    (
+        "Graduate Software Engineer at Palantir",
+        {"entities": [(0, 26, "JOB_TITLE"), (30, 38, "COMPANY")]},
+    ),
+    (
+        "New Grad SDE at Amazon",
+        {"entities": [(0, 12, "JOB_TITLE"), (16, 22, "COMPANY")]},
+    ),
+    # multi-word company names
+    (
+        "Software Engineer at Goldman Sachs",
+        {"entities": [(0, 17, "JOB_TITLE"), (21, 34, "COMPANY")]},
+    ),
+    (
+        "Data Scientist at JP Morgan Chase",
+        {"entities": [(0, 14, "JOB_TITLE"), (18, 33, "COMPANY")]},
+    ),
+    (
+        "Product Manager at Morgan Stanley",
+        {"entities": [(0, 15, "JOB_TITLE"), (19, 33, "COMPANY")]},
+    ),
+    (
+        "Deloitte Technology Consultant Toronto, ON",
+        {"entities": [(0, 8, "COMPANY"), (9, 30, "JOB_TITLE"), (31, 42, "LOCATION")]},
+    ),
+    (
+        "Ernst & Young Software Developer Vancouver, BC",
+        {"entities": [(0, 13, "COMPANY"), (14, 32, "JOB_TITLE"), (33, 46, "LOCATION")]},
+    ),
+    # specialty roles
+    (
+        "Site Reliability Engineer at Google",
+        {"entities": [(0, 25, "JOB_TITLE"), (29, 35, "COMPANY")]},
+    ),
+    (
+        "Security Engineer at Cloudflare",
+        {"entities": [(0, 17, "JOB_TITLE"), (21, 31, "COMPANY")]},
+    ),
+    (
+        "Platform Engineer at Kubernetes",
+        {"entities": [(0, 17, "JOB_TITLE"), (21, 31, "COMPANY")]},
+    ),
+    (
+        "Infrastructure Engineer at Docker",
+        {"entities": [(0, 23, "JOB_TITLE"), (27, 33, "COMPANY")]},
+    ),
+    # variations with punctuation and formatting
+    (
+        "Software Engineer, Backend at Stripe",
+        {"entities": [(0, 26, "JOB_TITLE"), (30, 36, "COMPANY")]},
+    ),
+    (
+        "Senior Data Scientist (ML/AI) at Uber",
+        {"entities": [(0, 29, "JOB_TITLE"), (33, 37, "COMPANY")]},
+    ),
+    (
+        "Full-Stack Developer at Square",
+        {"entities": [(0, 20, "JOB_TITLE"), (24, 30, "COMPANY")]},
+    ),
+    (
+        "Front-end Engineer at Pinterest",
+        {"entities": [(0, 19, "JOB_TITLE"), (23, 32, "COMPANY")]},
     ),
 ]
 
 # convert training data into spaCy example objects
 # for each training sample, turn the raw string into doc (tokenized text), and add entity annotations to it
 
-examples = []
-for text, annotations in TRAIN_DATA:
-    doc = nlp.make_doc(text)  # tokenize text
-    example = Example.from_dict(doc, annotations)  # pair tokens, and entities
-    examples.append(example)
 
-# identify and disable all non-ner pipeline components (tok2vec, tagger, parser)
-# building a list of everything except our named entity recognizer
-# this makes it so it wont run on every update, speeding things up
-other_pipes = [p for p in nlp.pipe_names if p != "ner"]
-with nlp.disable_pipes(*other_pipes):
+def create_examples(train_data, nlp):
+    """Convert training data to spaCy example objects with error handling"""
+    examples = []
+    skipped = 0
+
+    for text, annotations in train_data:
+        doc = nlp.make_doc(text)
+        spans = []
+        example_valid = True
+
+        for start, end, label in annotations["entities"]:
+            span = doc.char_span(start, end, label=label, alignment_mode="contract")
+            if span is None:
+                print(f"Skipping misaligned span: '{text[start:end]}' in: '{text}'")
+                example_valid = False
+                skipped += 1
+                break
+            spans.append(span)
+
+        if example_valid:
+            doc.ents = spans
+            examples.append(
+                Example.from_dict(
+                    doc,
+                    {"entities": [(s.start_char, s.end_char, s.label_) for s in spans]},
+                )
+            )
+
+    print(f"Created {len(examples)} valid examples")
+    if skipped > 0:
+        print(f"Skipped {skipped} examples due to alignment issues")
+
+    return examples
+
+
+def train_model():
+    print("Starting training...")
+
+    # create examples
+    examples = create_examples(TRAIN_DATA, nlp)
+
+    if len(examples) == 0:
+        print("No valid examples found. Check your annotations!")
+        return
+
+    # split data for validation
+    split_idx = int(len(examples) * 0.8)
+    train_examples = examples[:split_idx]
+    val_examples = examples[split_idx:]
+
+    print(
+        f"Training on {len(train_examples)} examples, validating on {len(val_examples)} examples"
+    )
+
+    # training setup
     optimizer = nlp.resume_training()
-    # we loaded a pretrained model, so we resume training
-    for epoch in range(30):
-        random.shuffle(examples)
-        losses = {}
-        # train for 30 passes (epochs) over training data
-        # shuffling the examples so each epoch avoids biasing the model for a particular order
-        # losses dict to collect loss values for this epoch ( sum/average of the models prediction errors over all training examples in that epoch )
-        for batch in minibatch(examples, size=8):
-            nlp.update(batch, sgd=optimizer, drop=0.2, losses=losses)
-        # split list of example in small batches up to 8 samples eachy
-        # on each batch, the model does a forward pass: predicts entity labels for all examples in the batch
-        # compute loss, measures how far those predictions are from actual annotations
-        # backward pass, uses that loss to ajust (optimizer) the ner weights to improve model
-        # dropout (drop=0.2) -> randomly drops 20% of models internal connections to reduce overfitting
-        # accumulate, adds batch contributions to running total in losses[ner]
-        print(f"Epoch {epoch+1} — Loss: {losses['ner']:.3f}")
+
+    # trying different learning rates if loss is stuck
+    optimizer.learn_rate = 0.001  
+
+    best_loss = float("inf")
+    patience = 15
+    no_improve = 0
+
+    # disable other pipes during training
+    with nlp.disable_pipes("parser", "tagger", "attribute_ruler", "lemmatizer"):
+        for epoch in range(100):  # mre epochs
+            random.shuffle(train_examples)
+            losses = {}
+
+            # smaller batch size for better learning
+            batch_size = 4 if len(train_examples) > 16 else 2
+
+            for batch in minibatch(train_examples, size=batch_size):
+                nlp.update(batch, sgd=optimizer, drop=0.35, losses=losses)
+
+            current_loss = losses.get("ner", 0)
+
+            # early stopping logic if worse
+            if current_loss < best_loss:
+                best_loss = current_loss
+                no_improve = 0
+                # save best model
+                nlp.to_disk("models/job_post_ner_best")
+            else:
+                no_improve += 1
+
+            print(
+                f"Epoch {epoch+1:3d} — Loss: {current_loss:.3f} (Best: {best_loss:.3f})"
+            )
+
+            # early stopping
+            if no_improve >= patience:
+                print(
+                    f"Early stopping at epoch {epoch+1} (no improvement for {patience} epochs)"
+                )
+                break
+
+            # stop if loss gets very low
+            if current_loss < 5.0:
+                print(f"Training complete! Loss below 5.0")
+                break
+
+    # final save
+    nlp.to_disk("models/job_post_ner_final")
+    print("Model training completed and saved")
+
+    # quick test
+    test_texts = [
+        "Software Engineer at Google",
+        "Data Scientist at Meta Toronto, ON",
+        "Microsoft Senior Developer",
+    ]
+
+    print("\nQuick test:")
+    for text in test_texts:
+        doc = nlp(text)
+        entities = [(ent.text, ent.label_) for ent in doc.ents]
+        print(f"'{text}' -> {entities}")
 
 
-# save to disk
-nlp.to_disk("models/job_post_ner")
-print("model trained")
-
-
-# spacy train config.cfg --output ./models --paths.train ./train.spacy --paths.dev ./dev.spacy
+if __name__ == "__main__":
+    train_model()
