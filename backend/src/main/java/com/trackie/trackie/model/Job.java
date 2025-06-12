@@ -18,12 +18,11 @@ public class Job {
     private String status;
     private String type; // added or watchlist
     private String date;
-    
+
     @ElementCollection
-    // allow fetches to clearbit api 
+    // allow fetches to clearbit api
     private List<String> possibleDomains;
     private Integer logoIndex;
-    
 
     public Job() {
     }

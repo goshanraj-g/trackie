@@ -75,7 +75,8 @@ export async function updateWatchItem(item: Job): Promise<Job> {
 }
 
 export async function deleteWatchItem(id: string): Promise<void> {
-  const res = await fetch(`${API_URL}/jobs/${id}`, { 
-    method: "DELETE" });
+  const res = await fetch(`${API_URL}/jobs/${id}`, {
+    method: "DELETE",
+  });
   if (!res.ok) throw new Error("Failed to delete watchlist item");
 }
