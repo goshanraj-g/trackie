@@ -20,306 +20,166 @@ ner.add_label("LOCATION")
 
 # training data
 TRAIN_DATA = [
-    # standard formats
-    (
-        "Software Engineer at Google",
-        {"entities": [(0, 17, "JOB_TITLE"), (21, 27, "COMPANY")]},
-    ),
-    (
-        "Data Scientist at Meta",
-        {"entities": [(0, 14, "JOB_TITLE"), (18, 22, "COMPANY")]},
-    ),
-    (
-        "Product Manager at Amazon",
-        {"entities": [(0, 15, "JOB_TITLE"), (19, 25, "COMPANY")]},
-    ),
-    (
-        "Frontend Developer at Shopify",
-        {"entities": [(0, 18, "JOB_TITLE"), (22, 29, "COMPANY")]},
-    ),
-    (
-        "DevOps Engineer at Netflix",
-        {"entities": [(0, 15, "JOB_TITLE"), (19, 26, "COMPANY")]},
-    ),
-    # location after company
-    (
-        "Software Engineer at Google Toronto, ON",
-        {"entities": [(0, 17, "JOB_TITLE"), (21, 27, "COMPANY"), (28, 39, "LOCATION")]},
-    ),
-    (
-        "Data Analyst at Meta Vancouver, BC",
-        {"entities": [(0, 12, "JOB_TITLE"), (16, 20, "COMPANY"), (21, 34, "LOCATION")]},
-    ),
-    (
-        "UX Designer at Airbnb San Francisco, CA",
-        {"entities": [(0, 11, "JOB_TITLE"), (15, 21, "COMPANY"), (22, 39, "LOCATION")]},
-    ),
-    (
-        "Backend Engineer at Stripe New York, NY",
-        {"entities": [(0, 16, "JOB_TITLE"), (20, 26, "COMPANY"), (27, 39, "LOCATION")]},
-    ),
-    (
-        "Machine Learning Engineer at OpenAI Toronto, Canada",
-        {"entities": [(0, 25, "JOB_TITLE"), (29, 35, "COMPANY"), (36, 51, "LOCATION")]},
-    ),
-    # companyt name first
-    (
-        "Microsoft Software Development Engineer",
-        {"entities": [(0, 9, "COMPANY"), (10, 39, "JOB_TITLE")]},
-    ),
-    (
-        "Apple iOS Developer",
-        {"entities": [(0, 5, "COMPANY"), (6, 19, "JOB_TITLE")]},
-    ),
-    (
-        "Tesla Automotive Software Engineer",
-        {"entities": [(0, 5, "COMPANY"), (6, 34, "JOB_TITLE")]},
-    ),
-    (
-        "Spotify Backend Developer",
-        {"entities": [(0, 7, "COMPANY"), (8, 25, "JOB_TITLE")]},
-    ),
-    (
-        "Uber Senior Software Engineer",
-        {"entities": [(0, 4, "COMPANY"), (5, 29, "JOB_TITLE")]},
-    ),
-    # company name, and location
-    (
-        "Google Software Engineer Toronto, ON",
-        {"entities": [(0, 6, "COMPANY"), (7, 24, "JOB_TITLE"), (25, 36, "LOCATION")]},
-    ),
-    (
-        "Amazon Web Services Cloud Engineer Vancouver, BC",
-        {"entities": [(0, 19, "COMPANY"), (20, 34, "JOB_TITLE"), (35, 48, "LOCATION")]},
-    ),
-    (
-        "IBM Data Scientist Montreal, QC",
-        {"entities": [(0, 3, "COMPANY"), (4, 18, "JOB_TITLE"), (19, 31, "LOCATION")]},
-    ),
-    (
-        "Salesforce Product Manager San Francisco, CA",
-        {"entities": [(0, 10, "COMPANY"), (11, 26, "JOB_TITLE"), (27, 44, "LOCATION")]},
-    ),
-    (
-        "Shopify Full Stack Developer Ottawa, ON",
-        {"entities": [(0, 7, "COMPANY"), (8, 29, "JOB_TITLE"), (30, 39, "LOCATION")]},
-    ),
-    # internships
-    (
-        "Software Engineering Intern at Facebook",
-        {"entities": [(0, 27, "JOB_TITLE"), (31, 39, "COMPANY")]},
-    ),
-    (
-        "Data Science Intern at LinkedIn",
-        {"entities": [(0, 19, "JOB_TITLE"), (23, 31, "COMPANY")]},
-    ),
-    (
-        "Google Software Engineer Intern",
-        {"entities": [(0, 6, "COMPANY"), (7, 32, "JOB_TITLE")]},
-    ),
-    (
-        "Microsoft Product Management Intern Seattle, WA",
-        {"entities": [(0, 9, "COMPANY"), (10, 35, "JOB_TITLE"), (36, 47, "LOCATION")]},
-    ),
-    (
-        "Amazon SDE Intern Toronto, ON",
-        {"entities": [(0, 6, "COMPANY"), (7, 17, "JOB_TITLE"), (18, 29, "LOCATION")]},
-    ),
-    # senior/leads
-    (
-        "Senior Software Engineer at Slack",
-        {"entities": [(0, 24, "JOB_TITLE"), (28, 33, "COMPANY")]},
-    ),
-    (
-        "Lead Data Scientist at Palantir",
-        {"entities": [(0, 19, "JOB_TITLE"), (23, 31, "COMPANY")]},
-    ),
-    (
-        "Principal Engineer at Databricks",
-        {"entities": [(0, 18, "JOB_TITLE"), (22, 32, "COMPANY")]},
-    ),
-    (
-        "Staff Software Engineer at GitHub",
-        {"entities": [(0, 23, "JOB_TITLE"), (27, 33, "COMPANY")]},
-    ),
-    (
-        "Senior Product Manager at Zoom",
-        {"entities": [(0, 22, "JOB_TITLE"), (26, 30, "COMPANY")]},
-    ),
-    # co-op
-    (
-        "Software Developer Co-op at Blackberry",
-        {"entities": [(0, 24, "JOB_TITLE"), (28, 38, "COMPANY")]},
-    ),
-    (
-        "Data Analyst Co-op at RBC",
-        {"entities": [(0, 18, "JOB_TITLE"), (22, 25, "COMPANY")]},
-    ),
-    (
-        "Shopify Software Engineer Co-op Waterloo, ON",
-        {"entities": [(0, 7, "COMPANY"), (8, 31, "JOB_TITLE"), (32, 45, "LOCATION")]},
-    ),
-    (
-        "TD Bank QA Engineer Co-op Toronto, ON",
-        {"entities": [(0, 7, "COMPANY"), (8, 25, "JOB_TITLE"), (26, 37, "LOCATION")]},
-    ),
-    (
-        "Wealthsimple Backend Developer Co-op",
-        {"entities": [(0, 12, "COMPANY"), (13, 36, "JOB_TITLE")]},
-    ),
-    # specific tech 
-    (
-        "React Developer at Notion",
-        {"entities": [(0, 15, "JOB_TITLE"), (19, 25, "COMPANY")]},
-    ),
-    (
-        "Python Developer at Dropbox",
-        {"entities": [(0, 16, "JOB_TITLE"), (20, 27, "COMPANY")]},
-    ),
-    (
-        "Node.js Engineer at Discord",
-        {"entities": [(0, 17, "JOB_TITLE"), (21, 28, "COMPANY")]},
-    ),
-    (
-        "DevOps Engineer at HashiCorp",
-        {"entities": [(0, 15, "JOB_TITLE"), (19, 28, "COMPANY")]},
-    ),
-    (
-        "Mobile Developer at Snapchat",
-        {"entities": [(0, 16, "JOB_TITLE"), (20, 28, "COMPANY")]},
-    ),
-    # freelance/contract
-    (
-        "Contract Software Engineer at Upwork",
-        {"entities": [(0, 27, "JOB_TITLE"), (31, 37, "COMPANY")]},
-    ),
-    (
-        "Freelance Web Developer at Fiverr",
-        {"entities": [(0, 23, "JOB_TITLE"), (27, 33, "COMPANY")]},
-    ),
-    (
-        "Consultant Data Scientist at Accenture",
-        {"entities": [(0, 25, "JOB_TITLE"), (29, 38, "COMPANY")]},
-    ),
-    # remote positions
-    (
-        "Remote Software Engineer at GitLab",
-        {"entities": [(0, 24, "JOB_TITLE"), (28, 34, "COMPANY")]},
-    ),
-    (
-        "Software Engineer (Remote) at Atlassian",
-        {"entities": [(0, 26, "JOB_TITLE"), (30, 39, "COMPANY")]},
-    ),
-    (
-        "Shopify Remote Frontend Developer Canada",
-        {"entities": [(0, 7, "COMPANY"), (8, 33, "JOB_TITLE"), (34, 40, "LOCATION")]},
-    ),
-    # canadian companies and locations
-    (
-        "Software Developer at Cohere Toronto, ON",
-        {"entities": [(0, 18, "JOB_TITLE"), (22, 28, "COMPANY"), (29, 40, "LOCATION")]},
-    ),
-    (
-        "Machine Learning Engineer at Coveo Quebec City, QC",
-        {"entities": [(0, 25, "JOB_TITLE"), (29, 34, "COMPANY"), (35, 50, "LOCATION")]},
-    ),
-    (
-        "Hootsuite Social Media Developer Vancouver, BC",
-        {"entities": [(0, 9, "COMPANY"), (10, 32, "JOB_TITLE"), (33, 46, "LOCATION")]},
-    ),
-    (
-        "Mogo Fintech Developer Calgary, AB",
-        {"entities": [(0, 4, "COMPANY"), (5, 22, "JOB_TITLE"), (23, 34, "LOCATION")]},
-    ),
-    (
-        "Nuvei Payment Systems Engineer Montreal, QC",
-        {"entities": [(0, 5, "COMPANY"), (6, 30, "JOB_TITLE"), (31, 43, "LOCATION")]},
-    ),
-    # different location formats
-    (
-        "Software Engineer at Google • Toronto, Ontario",
-        {"entities": [(0, 17, "JOB_TITLE"), (21, 27, "COMPANY"), (30, 47, "LOCATION")]},
-    ),
-    (
-        "Data Scientist at Meta | Vancouver, British Columbia",
-        {"entities": [(0, 14, "JOB_TITLE"), (18, 22, "COMPANY"), (25, 52, "LOCATION")]},
-    ),
-    (
-        "Product Manager at Amazon - Seattle, Washington",
-        {"entities": [(0, 15, "JOB_TITLE"), (19, 25, "COMPANY"), (28, 47, "LOCATION")]},
-    ),
-    # entry level positions
-    (
-        "Junior Software Developer at Wix",
-        {"entities": [(0, 25, "JOB_TITLE"), (29, 32, "COMPANY")]},
-    ),
-    (
-        "Entry Level Data Analyst at IBM",
-        {"entities": [(0, 24, "JOB_TITLE"), (28, 31, "COMPANY")]},
-    ),
-    (
-        "Graduate Software Engineer at Palantir",
-        {"entities": [(0, 26, "JOB_TITLE"), (30, 38, "COMPANY")]},
-    ),
-    (
-        "New Grad SDE at Amazon",
-        {"entities": [(0, 12, "JOB_TITLE"), (16, 22, "COMPANY")]},
-    ),
-    # multi-word company names
-    (
-        "Software Engineer at Goldman Sachs",
-        {"entities": [(0, 17, "JOB_TITLE"), (21, 34, "COMPANY")]},
-    ),
-    (
-        "Data Scientist at JP Morgan Chase",
-        {"entities": [(0, 14, "JOB_TITLE"), (18, 33, "COMPANY")]},
-    ),
-    (
-        "Product Manager at Morgan Stanley",
-        {"entities": [(0, 15, "JOB_TITLE"), (19, 33, "COMPANY")]},
-    ),
-    (
-        "Deloitte Technology Consultant Toronto, ON",
-        {"entities": [(0, 8, "COMPANY"), (9, 30, "JOB_TITLE"), (31, 42, "LOCATION")]},
-    ),
-    (
-        "Ernst & Young Software Developer Vancouver, BC",
-        {"entities": [(0, 13, "COMPANY"), (14, 32, "JOB_TITLE"), (33, 46, "LOCATION")]},
-    ),
-    # specialty roles
-    (
-        "Site Reliability Engineer at Google",
-        {"entities": [(0, 25, "JOB_TITLE"), (29, 35, "COMPANY")]},
-    ),
-    (
-        "Security Engineer at Cloudflare",
-        {"entities": [(0, 17, "JOB_TITLE"), (21, 31, "COMPANY")]},
-    ),
-    (
-        "Platform Engineer at Kubernetes",
-        {"entities": [(0, 17, "JOB_TITLE"), (21, 31, "COMPANY")]},
-    ),
-    (
-        "Infrastructure Engineer at Docker",
-        {"entities": [(0, 23, "JOB_TITLE"), (27, 33, "COMPANY")]},
-    ),
-    # variations with punctuation and formatting
-    (
-        "Software Engineer, Backend at Stripe",
-        {"entities": [(0, 26, "JOB_TITLE"), (30, 36, "COMPANY")]},
-    ),
-    (
-        "Senior Data Scientist (ML/AI) at Uber",
-        {"entities": [(0, 29, "JOB_TITLE"), (33, 37, "COMPANY")]},
-    ),
-    (
-        "Full-Stack Developer at Square",
-        {"entities": [(0, 20, "JOB_TITLE"), (24, 30, "COMPANY")]},
-    ),
-    (
-        "Front-end Engineer at Pinterest",
-        {"entities": [(0, 19, "JOB_TITLE"), (23, 32, "COMPANY")]},
-    ),
+    {
+        "text": "Product Designer  SecureSoft Ottawa, ON",
+        "entities": [[0, 16, "JOB_TITLE"], [18, 28, "COMPANY"], [29, 39, "LOCATION"]],
+    },
+    {
+        "text": "Cloud Solutions Architect (Application in Description) DataBridge Analytics Vancouver, BC (Remote)",
+        "entities": [[0, 25, "JOB_TITLE"], [55, 75, "COMPANY"], [76, 98, "LOCATION"]],
+    },
+    {
+        "text": "Frontend Developer - Apply Now Nimbus Cloud Systems Ottawa, ON",
+        "entities": [[0, 18, "JOB_TITLE"], [31, 51, "COMPANY"], [52, 62, "LOCATION"]],
+    },
+    {
+        "text": "Product Designer - Apply Now NeoBank Victoria, BC (Remote)",
+        "entities": [[0, 16, "JOB_TITLE"], [29, 36, "COMPANY"], [37, 58, "LOCATION"]],
+    },
+    {
+        "text": "Senior Data Analyst (Application in Description) DataBridge Analytics Ottawa, ON",
+        "entities": [[0, 19, "JOB_TITLE"], [49, 69, "COMPANY"], [70, 80, "LOCATION"]],
+    },
+    {
+        "text": "Security Engineer (Application in Description) QuantumBit AI Victoria, BC (Remote)",
+        "entities": [[0, 17, "JOB_TITLE"], [47, 60, "COMPANY"], [61, 82, "LOCATION"]],
+    },
+    {
+        "text": "Full Stack Engineer - Immediate Start PixelCraft Studios Toronto, ON (Hybrid)",
+        "entities": [[0, 19, "JOB_TITLE"], [38, 56, "COMPANY"], [57, 77, "LOCATION"]],
+    },
+    {
+        "text": "AI Research Intern - Apply Now NeoBank Calgary, AB (Hybrid)",
+        "entities": [[0, 18, "JOB_TITLE"], [31, 38, "COMPANY"], [39, 59, "LOCATION"]],
+    },
+    {
+        "text": "Backend Developer - Apply Now PixelCraft Studios Toronto, ON (Hybrid)",
+        "entities": [[0, 17, "JOB_TITLE"], [30, 48, "COMPANY"], [49, 69, "LOCATION"]],
+    },
+    {
+        "text": "Full Stack Engineer  TechNova Inc. Montreal, QC (On-site)",
+        "entities": [[0, 19, "JOB_TITLE"], [21, 34, "COMPANY"], [35, 57, "LOCATION"]],
+    },
+    {
+        "text": "Frontend Developer  QuantumBit AI Toronto, ON (Hybrid)",
+        "entities": [[0, 18, "JOB_TITLE"], [20, 33, "COMPANY"], [34, 54, "LOCATION"]],
+    },
+    {
+        "text": "AI Research Intern - Apply Now QuantumBit AI Victoria, BC (Remote)",
+        "entities": [[0, 18, "JOB_TITLE"], [31, 44, "COMPANY"], [45, 66, "LOCATION"]],
+    },
+    {
+        "text": "Backend Developer (Application in Description) CodeNest Victoria, BC (Remote)",
+        "entities": [[0, 17, "JOB_TITLE"], [47, 55, "COMPANY"], [56, 77, "LOCATION"]],
+    },
+    {
+        "text": "Senior Data Analyst - Apply Now PixelCraft Studios Victoria, BC (Remote)",
+        "entities": [[0, 19, "JOB_TITLE"], [32, 50, "COMPANY"], [51, 72, "LOCATION"]],
+    },
+    {
+        "text": "Backend Developer - Apply Now Nimbus Cloud Systems Ottawa, ON",
+        "entities": [[0, 17, "JOB_TITLE"], [30, 50, "COMPANY"], [51, 61, "LOCATION"]],
+    },
+    {
+        "text": "Security Engineer (Promoted) StartLoop Ottawa, ON",
+        "entities": [[0, 17, "JOB_TITLE"], [29, 38, "COMPANY"], [39, 49, "LOCATION"]],
+    },
+    {
+        "text": "Machine Learning Engineer - Apply Now SecureSoft Ottawa, ON",
+        "entities": [[0, 25, "JOB_TITLE"], [38, 48, "COMPANY"], [49, 59, "LOCATION"]],
+    },
+    {
+        "text": "Full Stack Engineer - Apply Now DataBridge Analytics Montreal, QC (On-site)",
+        "entities": [[0, 19, "JOB_TITLE"], [32, 52, "COMPANY"], [53, 75, "LOCATION"]],
+    },
+    {
+        "text": "Security Engineer  StartLoop Victoria, BC (Remote)",
+        "entities": [[0, 17, "JOB_TITLE"], [19, 28, "COMPANY"], [29, 50, "LOCATION"]],
+    },
+    {
+        "text": "AI Research Intern (Promoted) TechNova Inc. Edmonton, AB",
+        "entities": [[0, 18, "JOB_TITLE"], [30, 43, "COMPANY"], [44, 56, "LOCATION"]],
+    },
+    {
+        "text": "Backend Developer (Promoted) CodeNest Montreal, QC (On-site)",
+        "entities": [[0, 17, "JOB_TITLE"], [29, 37, "COMPANY"], [38, 60, "LOCATION"]],
+    },
+    {
+        "text": "Security Engineer - Apply Now Nimbus Cloud Systems Halifax, NS",
+        "entities": [[0, 17, "JOB_TITLE"], [30, 50, "COMPANY"], [51, 62, "LOCATION"]],
+    },
+    {
+        "text": "Frontend Developer - Immediate Start DataBridge Analytics Ottawa, ON",
+        "entities": [[0, 18, "JOB_TITLE"], [37, 57, "COMPANY"], [58, 68, "LOCATION"]],
+    },
+    {
+        "text": "Senior Data Analyst - Immediate Start SecureSoft Montreal, QC (On-site)",
+        "entities": [[0, 19, "JOB_TITLE"], [38, 48, "COMPANY"], [49, 71, "LOCATION"]],
+    },
+    {
+        "text": "Frontend Developer - Apply Now NeoBank Halifax, NS",
+        "entities": [[0, 18, "JOB_TITLE"], [31, 38, "COMPANY"], [39, 50, "LOCATION"]],
+    },
+    {
+        "text": "Software Engineer - Immediate Start NeoBank Calgary, AB (Hybrid)",
+        "entities": [[0, 17, "JOB_TITLE"], [36, 43, "COMPANY"], [44, 64, "LOCATION"]],
+    },
+    {
+        "text": "Machine Learning Engineer  SecureSoft Calgary, AB (Hybrid)",
+        "entities": [[0, 25, "JOB_TITLE"], [27, 37, "COMPANY"], [38, 58, "LOCATION"]],
+    },
+    {
+        "text": "Senior Data Analyst  NeoBank Halifax, NS",
+        "entities": [[0, 19, "JOB_TITLE"], [21, 28, "COMPANY"], [29, 40, "LOCATION"]],
+    },
+    {
+        "text": "Product Designer - Apply Now TechNova Inc. Victoria, BC (Remote)",
+        "entities": [[0, 16, "JOB_TITLE"], [29, 42, "COMPANY"], [43, 64, "LOCATION"]],
+    },
+    {
+        "text": "Full Stack Engineer (Application in Description) BlueRocket Labs Edmonton, AB",
+        "entities": [[0, 19, "JOB_TITLE"], [49, 64, "COMPANY"], [65, 77, "LOCATION"]],
+    },
+    {
+        "text": "AI Research Intern - Apply Now TechNova Inc. Victoria, BC (Remote)",
+        "entities": [[0, 18, "JOB_TITLE"], [31, 44, "COMPANY"], [45, 66, "LOCATION"]],
+    },
+    {
+        "text": "Frontend Developer (Application in Description) BlueRocket Labs Montreal, QC (On-site)",
+        "entities": [[0, 18, "JOB_TITLE"], [48, 63, "COMPANY"], [64, 86, "LOCATION"]],
+    },
+    {
+        "text": "Product Designer (Application in Description) StartLoop Vancouver, BC (Remote)",
+        "entities": [[0, 16, "JOB_TITLE"], [46, 55, "COMPANY"], [56, 78, "LOCATION"]],
+    },
+    {
+        "text": "Machine Learning Engineer (Application in Description) NeoBank Calgary, AB (Hybrid)",
+        "entities": [[0, 25, "JOB_TITLE"], [55, 62, "COMPANY"], [63, 83, "LOCATION"]],
+    },
+    {
+        "text": "Backend Developer (Promoted) BlueRocket Labs Halifax, NS",
+        "entities": [[0, 17, "JOB_TITLE"], [29, 44, "COMPANY"], [45, 56, "LOCATION"]],
+    },
+    {
+        "text": "AI Research Intern (Promoted) SecureSoft Calgary, AB (Hybrid)",
+        "entities": [[0, 18, "JOB_TITLE"], [30, 40, "COMPANY"], [41, 61, "LOCATION"]],
+    },
+    {
+        "text": "DevOps Engineer (Application in Description) CodeNest Toronto, ON (Hybrid)",
+        "entities": [[0, 15, "JOB_TITLE"], [45, 53, "COMPANY"], [54, 74, "LOCATION"]],
+    },
+    {
+        "text": "Software Engineer - Apply Now SecureSoft Vancouver, BC (Remote)",
+        "entities": [[0, 17, "JOB_TITLE"], [30, 40, "COMPANY"], [41, 63, "LOCATION"]],
+    },
+    {
+        "text": "Product Designer (Application in Description) StartLoop Edmonton, AB",
+        "entities": [[0, 16, "JOB_TITLE"], [46, 55, "COMPANY"], [56, 68, "LOCATION"]],
+    },
+    {
+        "text": "Frontend Developer - Immediate Start DataBridge Analytics Edmonton, AB",
+        "entities": [[0, 18, "JOB_TITLE"], [37, 57, "COMPANY"], [58, 70, "LOCATION"]],
+    },
 ]
 
 # convert training data into spaCy example objects
@@ -384,7 +244,7 @@ def train_model():
     optimizer = nlp.resume_training()
 
     # trying different learning rates if loss is stuck
-    optimizer.learn_rate = 0.001  
+    optimizer.learn_rate = 0.001
 
     best_loss = float("inf")
     patience = 15
