@@ -191,12 +191,14 @@ def create_examples(train_data, nlp):
     examples = []
     skipped = 0
 
-    for text, annotations in train_data:
+    for item in train_data:
+        text = item["text"]
+        entities = item["entities"]
         doc = nlp.make_doc(text)
         spans = []
         example_valid = True
 
-        for start, end, label in annotations["entities"]:
+        for start, end, label in entities:
             span = doc.char_span(start, end, label=label, alignment_mode="contract")
             if span is None:
                 print(f"Skipping misaligned span: '{text[start:end]}' in: '{text}'")
