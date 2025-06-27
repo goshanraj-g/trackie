@@ -1,11 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from pathlib import Path
 import spacy
 import re
 
+
+model_path = Path(__file__).parent / "models" / "job_post_ner_final"
 app = FastAPI()
-nlp = spacy.load("en_core_web_sm")
+nlp = spacy.load(model_path)
 
 origins = ["http://localhost:3000"]
 
@@ -55,7 +58,6 @@ def analyze_job_post(job: JobPost):
         "Ruby",
         "Kotlin",
         "Swift",
-
         # Frontend Frameworks & Libraries
         "React",
         "Next.js",
@@ -63,7 +65,6 @@ def analyze_job_post(job: JobPost):
         "Svelte",
         "Tailwind CSS",
         "Bootstrap",
-
         # Backend Frameworks
         "Node.js",
         "Express.js",
@@ -73,7 +74,6 @@ def analyze_job_post(job: JobPost):
         "FastAPI",
         "NestJS",
         "Rails",
-
         # Cloud & DevOps
         "AWS",
         "Azure",
@@ -83,7 +83,6 @@ def analyze_job_post(job: JobPost):
         "Terraform",
         "GitHub Actions",
         "Jenkins",
-
         # Databases
         "SQL",
         "PostgreSQL",
@@ -92,14 +91,12 @@ def analyze_job_post(job: JobPost):
         "Redis",
         "SQLite",
         "DynamoDB",
-
         # Testing & CI
         "Jest",
         "JUnit",
         "PyTest",
         "Cypress",
         "Selenium",
-
         # Tools & Misc
         "Git",
         "Figma",
@@ -112,21 +109,18 @@ def analyze_job_post(job: JobPost):
     ]
 
     for ent in doc.ents:
-        # figures out if company is an organization
-
-        if ent.label_ == "ORG":
+        if ent.label_ == "COMPANY":
             data["company"] = ent.text
-            break
+            break  # stop at first match
 
     for ent in doc.ents:
-        # figures out location
-        if ent.label_ == "GPE":
+        if ent.label_ == "LOCATION":
             data["location"] = ent.text
             break
 
-    for title in job_titles:
-        if title.lower() in job.text.lower():
-            data["title"] = title
+    for ent in doc.ents:
+        if ent.label_ == "JOB_TITLE":
+            data["title"] = ent.text
             break
 
     url_match = re.search(r"(https?://\S+)", job.text)
