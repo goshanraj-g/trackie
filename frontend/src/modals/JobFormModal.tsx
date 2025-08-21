@@ -173,7 +173,7 @@ export default function JobFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[520px]">
+  <DialogContent className="max-w-[520px]">
         <DialogHeader>
           <DialogTitle>{jobToEdit ? "Edit Job" : "Add New Job"}</DialogTitle>
         </DialogHeader>
@@ -225,12 +225,11 @@ export default function JobFormModal({
             <SelectContent>
               {[
                 "Applied",
-                "Phone Screen",
+                "Online Assessment",
+                "Behavioural Interview",
                 "Technical Interview",
                 "Offer",
                 "Rejected",
-                "Ghosted",
-                "Waitlisted",
               ].map((s) => (
                 <SelectItem key={s} value={s}>
                   {s}
